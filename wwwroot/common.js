@@ -91,9 +91,7 @@ loadScript("hid-report.js");
 loadScript("hid-run.js");
 loadScript("hidedit-tree.js");
 loadScript("hidedit-reports.js");
-loadScript("hidedit-ui.js", true);
-
-var example = "05 01 09 02 A1 01 09 01 A1 00 05 09 19 01 29 08 15 00 25 01 75 01 95 08 81 02 05 01 09 30 09 31 09 38 09 B8 15 81 25 7F 75 08 95 04 81 06 C0 C0";
+loadScript("hidedit-toolbar.js");
 
 function writelog(str) {
     var log = document.getElementById('log');
@@ -102,26 +100,3 @@ function writelog(str) {
     log.appendChild(text);
 }
 
-function onScriptLoaded() {
-    var s = new ReadStream(example);
-    //writelog(s.data + "\n");
-
-    var descriptor = new HIDDescriptor();
-    descriptor.parse(s);
-
-    //s = new WriteStream();
-    //desc.pack(s);
-    //writelog(s.getData() + "\n");
-
-    var run = new HIDRun(descriptor);
-    var result = run.run();
-
-    treeView.show(descriptor);
-    reportsView.show(run.reports);
-
-    //writelog(result);
-
-    //console.log(run.reports);
-
-    return true;
-}

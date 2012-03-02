@@ -40,36 +40,13 @@ DIV.tbbtn
     display: inline-block;
     background-image: url('toolbar.png');
 }
-#load
+DIV.pressed
 {
-    background-position: 0px 0px;
+    border-bottom: 1px solid white;
+    border-right: 1px solid white;
+    border-top: 2px solid #808080;
+    border-left: 2px solid #808080;
 }
-#save
-{
-    background-position: -32px 0px;
-}
-#additem
-{
-    background-position: -64px 0px;
-}
-#deleteitem
-{
-    background-position: -96px 0px;
-}
-#edititem
-{
-    background-position: -128px 0px;
-}
-#addreport
-{
-    background-position: -160px 0px;
-}
-#deletereport
-{
-    background-position: -192px 0px;
-}
-
-
 
 /******************
  * Item tree view *
