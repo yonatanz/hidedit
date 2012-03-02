@@ -88,35 +88,14 @@ loadScript("hut.js");
 loadScript("hid.js");
 loadScript("hid-run-state.js");
 loadScript("hid-report.js");
-loadScript("hid-run.js", true);
+loadScript("hid-run.js");
+loadScript("hidedit-tree.js");
+loadScript("hidedit-reports.js");
+loadScript("hidedit-ui.js", true);
 
-var example = "05 01\n" +
-              "09 02\n" +
-              "A1 01\n" +
-              "09 01\n" +
-              "A1 00\n" +
-              "05 09\n" +
-              "19 01\n" +
-              "29 08\n" +
-              "15 00\n" +
-              "25 01\n" +
-              "75 01\n" +
-              "95 08\n" +
-              "81 02\n" +
-              "05 01\n" +
-              "09 30\n" +
-              "09 31\n" +
-              "09 38\n" +
-              "09 B8\n" +
-              "15 81\n" +
-              "25 7F\n" +
-              "75 08\n" +
-              "95 04\n" +
-              "81 06\n" +
-              "C0\n" +
-              "C0\n"
+var example = "05 01 09 02 A1 01 09 01 A1 00 05 09 19 01 29 08 15 00 25 01 75 01 95 08 81 02 05 01 09 30 09 31 09 38 09 B8 15 81 25 7F 75 08 95 04 81 06 C0 C0";
 
-function write(str) {
+function writelog(str) {
     var log = document.getElementById('log');
     var text = document.createElement('TextNode');
     text.textContent = str;
@@ -125,20 +104,24 @@ function write(str) {
 
 function onScriptLoaded() {
     var s = new ReadStream(example);
-    write(s.data + "\n");
+    //writelog(s.data + "\n");
 
-    var desc = new HIDDescriptor();
-    desc.parse(s);
+    var descriptor = new HIDDescriptor();
+    descriptor.parse(s);
 
-    s = new WriteStream();
-    desc.pack(s);
-    write(s.getData() + "\n");
+    //s = new WriteStream();
+    //desc.pack(s);
+    //writelog(s.getData() + "\n");
 
-    var run = new HIDRun(desc);
+    var run = new HIDRun(descriptor);
     var result = run.run();
-    write(result);
 
-    console.log(run.reports);
+    treeView.show(descriptor);
+    reportsView.show(run.reports);
+
+    //writelog(result);
+
+    //console.log(run.reports);
 
     return true;
 }

@@ -63,6 +63,7 @@ HIDRun.prototype.addReport = function (item) {
 }
 
 HIDRun.prototype.runItem = function (item) {
+    var ret = null;
     switch (item.tag) {
         case HIDItemGlobalTag.UsagePage:
             this.state.usagePage = parseEnum(item.data, HIDUsagePage);
@@ -107,11 +108,13 @@ HIDRun.prototype.runItem = function (item) {
         case HIDItemMainTag.Input:
         case HIDItemMainTag.Output:
         case HIDItemMainTag.Feature:
-            return this.addReport(item);
+            ret = this.addReport(item);
+            break;
         case HIDItemMainTag.Collection:
             var collType = parseEnum(item.data, HIDItemCollectionType);
             this.collectionStack.push(new HIDCollection(collType, this.state.clone()));
             item.dataDesc = collType.name;
+            item.indent--;
             break;
         case HIDItemMainTag.EndCollection:
             if (this.collectionStack.length < 1)
@@ -122,7 +125,8 @@ HIDRun.prototype.runItem = function (item) {
         default:
             return "Unsupported item tag during run: " + item.tag.name;
     }
-    return null;
+    item.indent += this.collectionStack.length;
+    return ret;
 }
 
 HIDRun.prototype.checkReportState = function () {

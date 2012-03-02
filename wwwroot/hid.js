@@ -131,10 +131,13 @@ function packHIDItemPrefix(tag, type, size) {
 }
 
 function HIDItem() {
+    // Parsed members
     this.type = null;
     this.tag = null;
     this.data = null;
+    // Members filled by run
     this.dataDesc = null;
+    this.indent = 0;
 }
 
 // Read and parse a HID Item from the stream
