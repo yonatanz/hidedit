@@ -1,0 +1,75 @@
+﻿/*
+    This file is part of hidedit.
+    (C) Copyright 2012 Ilan Tayari
+
+    hidedit is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    hidedit is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with hidedit.  If not, see http://www.gnu.org/licenses/
+*/
+
+/************
+ * Toolbar  *
+ ************/
+
+#toolbar 
+{
+    width: 100%;
+    border-bottom: 1px solid black;
+    padding: 3px;
+    background: #c0c0c0;
+}
+DIV.tbbtn
+{
+    width: 32px;
+    height: 32px;
+    border-top: 1px solid white;
+    border-left: 1px solid white;
+    border-bottom: 2px solid #808080;
+    border-right: 2px solid #808080;
+    margin-right: 2px;
+    padding: 0px;
+    display: inline-block;
+    background-image: url('toolbar.png');
+}
+DIV.pressed
+{
+    border-bottom: 1px solid white;
+    border-right: 1px solid white;
+    border-top: 2px solid #808080;
+    border-left: 2px solid #808080;
+}
+
+/******************
+ * Item tree view *
+ ******************/
+
+DIV.treeitem
+{
+    font-size: 80%;
+}
+DIV.treeitemindent
+{
+    display: inline-block;
+    width: 20px;
+}
+
+
+/***************
+ * Report view *
+ ***************/
+DIV.report
+{
+    display: inline-block;
+    border: 1px solid black;
+    padding: 10px;
+    margin-right: 10px;
+}
