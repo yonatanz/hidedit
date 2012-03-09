@@ -70,6 +70,13 @@ var HIDUsageGenericDesktop = {
     Reserved:   { value: [0xB8, 0xFFFF], name: "Reserved" },
 };
 
+var HIDUsageButton = {
+    name: "HIDUsageButton",
+    NoButton:   { value: 0, name: "No Button" },
+};
+for (var button = 1; button <= 65535; button++)
+    HIDUsageButton["Button" + button] = {value: button, name: "Button " + button};
+
 /*
 
 1. Generic Desktop:
@@ -112,7 +119,7 @@ var HIDUsagePage = {
     GenericDevice:          { value: 0x06, usage: null, name: "Generic Device" },
     Keyboard:               { value: 0x07, usage: null, name: "Keyboard/Keypad" },
     LED:                    { value: 0x08, usage: null, name: "LEDs" },
-    Button:                 { value: 0x09, usage: null, name: "Button" },
+    Button:                 { value: 0x09, usage: HIDUsageButton, name: "Button" },
     Ordinal:                { value: 0x0A, usage: null, name: "Ordinal" },
     Telephony:              { value: 0x0B, usage: null, name: "Telephony" },
     Consumer:               { value: 0x0C, usage: null, name: "Consumer" },
@@ -598,17 +605,6 @@ Usage ID	Usage Name	Usage Type	Section
 4C	System Suspend	OOC	11.6	
 4D	External Power Connected	OOC	11.6	
 4E-FFFF	Reserved	
-
-
-9. Button
-Usage ID	Usage Name	Usage Type	
-00	No button pressed	See Note	
-01	Button 1 (primary/trigger)	See Note	
-02	Button 2 (secondary)	See Note	
-03	Button 3 (tertiary)	See Note	
-04	Button 4	See Note	
-...	...	
-FFFF	Button 65535	See Note	
 
 
 0A. Ordinal

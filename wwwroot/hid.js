@@ -31,9 +31,9 @@ var HIDItemType = {
 // HID Descriptor Main Item Tag
 var HIDItemMainTag = {
     name: "HIDItemMainTag",
-    Input:          { value: 8, name: "Input" },
-    Output:         { value: 9, name: "Output" },
-    Feature:        { value: 11, name: "Feature" },
+    Input:          { value: 8, name: "Input", type: HIDReportType.Input },
+    Output:         { value: 9, name: "Output", type: HIDReportType.Output },
+    Feature:        { value: 11, name: "Feature", type: HIDReportType.Feature },
     Collection:     { value: 10, name: "Collection" },
     EndCollection:  { value: 12, name: "EndCollection" },
 };
@@ -95,7 +95,7 @@ function parseHIDItemSize(size) {
 
 function sizeForData(data) {
     if (data < 0)
-        error("Negative data");
+        throw "Negative data";
     if (data == 0)
         return 0;
     if (data < 256)
@@ -107,9 +107,9 @@ function sizeForData(data) {
 
 function packSize(size) {
     if ((size > 4) || (size == 3))
-        error("Long item packing is not yet supported");
+        throw "Long item packing is not yet supported";
     if (size < 0)
-        error("Negative size");
+        throw "Negative size";
 
     if (size == 4)
         return 3;
@@ -153,7 +153,7 @@ HIDItem.prototype.parse = function (stream) {
             this.data = stream.getBuffer(size);
         }
         else
-            return error("Unknown item: Special item tag, but not long-item size");
+            throw "Unknown item: Special item tag, but not long-item size";
     } else {
         // Parse short item
         switch (prefix.type) {
@@ -167,7 +167,7 @@ HIDItem.prototype.parse = function (stream) {
                 this.tag = parseEnum(prefix.tag, HIDItemLocalTag);
                 break;
             case HIDItemType.Reserved:
-                return error("Reserved item type encountered");
+                throw "Reserved item type encountered";
         }
 
         var size = prefix.size;

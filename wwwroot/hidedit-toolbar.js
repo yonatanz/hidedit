@@ -99,14 +99,14 @@ function onNewClicked()
 
 function onLoadClicked()
 {
-    
-    var example = "05 01 09 02 A1 01 09 01 A1 00 05 09 19 01 29 08 15 00 25 01 75 01 95 08 81 02 05 01 09 30 09 31 09 38 09 B8 15 81 25 7F 75 08 95 04 81 06 C0 C0";
+    var example1 = "05 01 09 02 A1 01 09 01 A1 00 05 09 19 01 29 08 15 00 25 01 75 01 95 08 81 02 05 01 09 30 09 31 09 38 09 B8 15 81 25 7F 75 08 95 04 81 06 C0 C0";
+    var example2 = "05 01 09 02 A1 01 09 01 A1 00 05 09 19 01 29 05 15 00 25 01 95 05 75 01 81 02 95 01 75 03 81 01 05 01 09 30 09 31 09 38 15 81 25 7F 75 08 95 03 81 06 C0 C0";
 
-    var s = new ReadStream(example);
+    var s = new ReadStream(example1);
     var descriptor = new HIDDescriptor();
     descriptor.parse(s);
     var run = new HIDRun(descriptor);
-    var result = run.run();
+    run.run();
     treeView.show(descriptor);
     reportsView.show(run.reports);
 }

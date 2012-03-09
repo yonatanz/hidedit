@@ -33,9 +33,66 @@ Reports.prototype.show = function (reports) {
         var reportElem = document.createElement('DIV');
         reportElem.className = "report";
 
-        var textElem = document.createElement('TextNode');
-        textElem.textContent = report.type.name;
-        reportElem.appendChild(textElem);
+        var elem;
+        elem = document.createElement('P');
+        elem.className = "Type";
+        elem.textContent = report.type.name + " report";
+        reportElem.appendChild(elem);
+
+        if (report.getID() != null) {
+            elem = document.createElement('P');
+            elem.className = "ID";
+            elem.textContent = "ID: " + report.getID();
+            reportElem.appendChild(elem);
+        }
+
+        elem = document.createElement('P');
+        elem.className = "Size";
+        elem.textContent = "Size: " + report.getByteSize() + " bytes";
+        reportElem.appendChild(elem);
+
+        var table, tr, td;
+
+        table = document.createElement('TABLE');
+        tr = document.createElement('TR');
+
+        td = document.createElement('TH');
+        td.textContent = "Usage";
+        tr.appendChild(td);
+        td = document.createElement('TH');
+        td.textContent = "Bits";
+        tr.appendChild(td);
+        td = document.createElement('TH');
+        td.textContent = "Data";
+        tr.appendChild(td);
+
+        table.appendChild(tr);
+
+
+        for (var entryIndex in report.entries) {
+            var entry = report.entries[entryIndex];
+
+            tr = document.createElement('TR');
+
+            td = document.createElement('TD');
+            if (entry.usage != null)
+                td.textContent = entry.usage.name;
+            else
+                td.textContent = "Unused";
+            tr.appendChild(td);
+            td = document.createElement('TD');
+            td.textContent = entry.bits;
+            tr.appendChild(td);
+            td = document.createElement('TD');
+            td.textContent = entry.data;
+            tr.appendChild(td);
+
+            table.appendChild(tr);
+        }
+
+        reportElem.appendChild(table);
+
+
 
         this.elem.appendChild(reportElem);
     }

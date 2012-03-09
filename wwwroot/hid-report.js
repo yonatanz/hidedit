@@ -23,13 +23,55 @@ var HIDReportType = {
     Feature:    { value: 2, name: "Feature" },
 };
 
-function HIDReport(type, data, state) {
-    this.type = type;
+function HIDReportEntry(data, usage, bits) {
     this.data = data;
-    this.state = state.clone();
+    this.usage = usage;
+    this.bits = bits;
+    // #### Todo: 
+    /*
+    this.logicalMin = ;
+    this.logicalMax = ;
+    this.physicalMin = ;
+    this.physicalMax = ;
+    ... etc
+    */
+};
+
+function HIDReport(type, id) {
+    this.type = type;
+    this.id = id;
+    this.entries = new Array();
+}
+
+HIDReport.prototype.addData = function (data, state) {
+    var num;
+    for (num = 0; num < state.repCount; num++)
+    {
+        var usage = state.dequeueUsage();
+        var entry = new HIDReportEntry(data, usage, state.repSize);
+        this.entries.push(entry);
+    }
 }
 
 HIDReport.prototype.makeDescription = function () {
     // #### Todo: Parse data bits and return them as human readable string
-    return this.data;
+//    return this.data;
 };
+
+HIDReport.prototype.getBitSize = function () {
+    var bits = 0;
+    for (var index in this.entries) {
+        var entry = this.entries[index];
+        bits += entry.bits;
+    }
+    return bits;
+}
+
+HIDReport.prototype.getByteSize = function () {
+    return Math.floor((this.getBitSize() + 7) / 8);
+}
+
+HIDReport.prototype.getID = function () {
+//    return this.state.repID;
+}
+
