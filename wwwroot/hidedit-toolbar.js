@@ -101,8 +101,65 @@ function onLoadClicked()
 {
     var example1 = "05 01 09 02 A1 01 09 01 A1 00 05 09 19 01 29 08 15 00 25 01 75 01 95 08 81 02 05 01 09 30 09 31 09 38 09 B8 15 81 25 7F 75 08 95 04 81 06 C0 C0";
     var example2 = "05 01 09 02 A1 01 09 01 A1 00 05 09 19 01 29 05 15 00 25 01 95 05 75 01 81 02 95 01 75 03 81 01 05 01 09 30 09 31 09 38 15 81 25 7F 75 08 95 03 81 06 C0 C0";
+    var example3 = "05 01 09 05 A1 01 05 09 19 0A 29 29 15 00 25 01 95 20 75 01 81 02 C0";
+    var example4 = "05 01 09 02 A1 01 05 09 19 01 29 03 15 00 25 01 95 03 75 01 81 02 95 01 75 05 81 03 05 01 09 01 A1 00 09 30 09 31 15 81 25 7F 75 08 95 02 81 06 C0 09 38 95 01 81 06 09 3c 15 00 25 01 75 01 95 01 b1 22 95 07 b1 01 C0";
+    // Digital Thermometer
+    var example5 = "0600FF0901A101050919012901150025019501750181029501750781010501094615BD257F67030003005500950175088100050809421500250F950175049100950175049101C0";
 
-    var s = new ReadStream(example1);
+    /* Another fine example:
+    USAGE_PAGE (Generic Desktop)
+USAGE (Game Pad)
+COLLECTION (Application)
+    COLLECTION (Physical)
+        REPORT_ID (1)
+        USAGE_PAGE (Button)
+        USAGE_MINIMUM (Button 1)
+        USAGE_MAXIMUM (Button 16)
+        LOGICAL_MINIMUM (0)
+        LOGICAL_MAXIMUM (1)
+        REPORT_COUNT (16)
+        REPORT_SIZE (1)
+        INPUT (Data,Var,Abs)
+        USAGE_PAGE (Generic Desktop)
+        USAGE (X)
+        USAGE (Y)
+        USAGE (Z)
+        USAGE (Rx)
+        LOGICAL_MINIMUM (-127)
+        LOGICAL_MAXIMUM (127)
+        REPORT_SIZE (8)
+        REPORT_COUNT (4)
+        INPUT (Data,Var,Abs)
+    END COLLECTION
+END COLLECTION
+USAGE_PAGE (Generic Desktop)
+USAGE (Game Pad)
+COLLECTION (Application)
+    COLLECTION (Physical)
+        REPORT_ID (2)
+        USAGE_PAGE (Button)
+        USAGE_MINIMUM (Button 1)
+        USAGE_MAXIMUM (Button 16)
+        LOGICAL_MINIMUM (0)
+        LOGICAL_MAXIMUM (1)
+        REPORT_COUNT (16)
+        REPORT_SIZE (1)
+        INPUT (Data,Var,Abs)
+        USAGE_PAGE (Generic Desktop)
+        USAGE (X)
+        USAGE (Y)
+        USAGE (Z)
+        USAGE (Rx)
+        LOGICAL_MINIMUM (-127)
+        LOGICAL_MAXIMUM (127)
+        REPORT_SIZE (8)
+        REPORT_COUNT (4)
+        INPUT (Data,Var,Abs)
+    END COLLECTION
+END COLLECTION
+*/
+
+    var s = new ReadStream(example5);
     var descriptor = new HIDDescriptor();
     descriptor.parse(s);
     var run = new HIDRun(descriptor);

@@ -16,9 +16,40 @@ You should have received a copy of the GNU General Public License
 along with hidedit.  If not, see http://www.gnu.org/licenses/
 */
 
+var HIDUnitSystem = {
+    name: "HIDUnitSystem",
+    SILinear:       { value: 0, name: "SI Linear",        units: { 1:"Centimeter", 2:"Gram", 3:"Seconds", 4:"Kelvin",     5:"Ampere", 6:"Candela" } },
+    SIRotation:     { value: 1, name: "SI Rotation",      units: { 1:"Radians",    2:"Gram", 3:"Seconds", 4:"Kelvin",     5:"Ampere", 6:"Candela" } },
+    EnglishLinear:  { value: 2, name: "English Linear",   units: { 1:"Inch",       2:"Slug", 3:"Seconds", 4:"Fahrenheit", 5:"Ampere", 6:"Candela" } },
+    EnglishRotation:{ value: 3, name: "English Rotation", units: { 1:"Degrees",    2:"Slug", 3:"Seconds", 4:"Fahrenheit", 5:"Ampere", 6:"Candela" } },
+};
+
 function HIDCollection(type, state) {
     this.type = type;
     this.state = state;
+}
+
+function HIDUnit(system) {
+    this.system = system;
+    this.parts = new Array();
+}
+
+HIDUnit.prototype.makeDescription = function()
+{
+    if (this.parts.length != 6)
+        throw "Invalid amount of unit parts: " + this.parts.length;
+    var ret = "";
+    for (var partIndex = 0; partIndex < this.parts.length; partIndex++)
+    {
+        var part = this.parts[partIndex];
+        if (part.exp == 0)
+            continue;
+        if (ret.length > 0)
+            ret += " * ";
+        ret += part.unit + "^" + part.exp;
+    }
+    ret = this.system.name + ": " + ret;
+    return ret;
 }
 
 function HIDRun(descriptor) {
@@ -73,6 +104,38 @@ HIDRun.prototype.countItemsByTag = function (items, tag) {
     return count;
 }
 
+HIDRun.prototype.parseUnitExponent = function (val) {
+    if ((val >= 0) && (val <= 7))
+        return val;
+    if ((val >= 8) && (val <= 15))
+        return val - 16;
+    throw "Invalid unit exponent value";
+}
+
+HIDRun.prototype.parseUnit = function (data) {
+    console.log(data);
+    var nibbles = new Array();
+    for (var nib = 0; nib < 8; nib++)
+    {
+        var value = data & 0x0F;
+        nibbles.push(value);
+        data = data >> 4;
+    }
+
+    var system = parseEnum(nibbles[0], HIDUnitSystem);
+
+    var unitObject = new HIDUnit(system);
+    for (nib = 1; nib < 7; nib++)
+    {
+        var part = new Array();
+        part.unit = system.units[nib];
+        part.exp = this.parseUnitExponent(nibbles[nib]);
+        unitObject.parts.push(part);
+    }
+    console.log(unitObject);
+    return unitObject;
+}
+
 HIDRun.prototype.runItem = function (item) {
     switch (item.tag) {
         case HIDItemGlobalTag.UsagePage:
@@ -113,6 +176,15 @@ HIDRun.prototype.runItem = function (item) {
         case HIDItemGlobalTag.ReportCount:
             this.state.repCount = item.data;
             item.dataDesc = this.state.repCount;
+            break;
+        case HIDItemGlobalTag.Unit:
+            var unitObj = this.parseUnit(item.data);
+            this.state.unit = unitObj;
+            item.dataDesc = unitObj.makeDescription();
+            break;
+        case HIDItemGlobalTag.UnitExponent:
+            this.state.unitExp = item.data;
+            item.dataDesc = this.state.unitExp;
             break;
         case HIDItemMainTag.Input:
         case HIDItemMainTag.Output:

@@ -69,18 +69,8 @@ var HIDUsageGenericDesktop = {
     SysWarmRst: { value: 0x8F, name: "System Warn Restart" },
     Reserved:   { value: [0xB8, 0xFFFF], name: "Reserved" },
 };
-
-var HIDUsageButton = {
-    name: "HIDUsageButton",
-    NoButton:   { value: 0, name: "No Button" },
-};
-for (var button = 1; button <= 65535; button++)
-    HIDUsageButton["Button" + button] = {value: button, name: "Button " + button};
-
 /*
-
 1. Generic Desktop:
-
 Usage ID	Usage Name	Usage Type	Section	
 90	D-pad Up	OOC	4.7	
 91	D-pad Down	OOC	4.7	
@@ -108,6 +98,104 @@ B7	System Display LCD Autoscale	OSC	4.10
 B8-FFFF	Reserved	
 */
 
+var HIDUsageButton = {
+    name: "HIDUsageButton",
+    NoButton:   { value: 0, name: "No Button" },
+};
+for (var button = 1; button <= 65535; button++)
+    HIDUsageButton["Button" + button] = {value: button, name: "Button " + button};
+
+var HIDUsageVendor = {
+    name: "HIDUsageVendor",
+};
+for (var vendor = 0; vendor <= 65535; vendor++)
+    HIDUsageVendor["Vendor" + vendor] = {value: vendor, name: "Vendor " + vendor};
+
+var HIDUsageLED = {
+    name: "HIDUsageLED",
+    Undefined: { value: 0x00, name: "Undefined" },
+    NumLock: { value: 0x01, name: "Num Lock" },
+    CapsLock: { value: 0x02, name: "Caps Lock" },
+    ScrollLock: { value: 0x03, name: "Scroll Lock" },
+    Compose: { value: 0x04, name: "Compose" },
+    Kana: { value: 0x05, name: "Kana" },
+    Power: { value: 0x06, name: "Power" },
+    Shift: { value: 0x07, name: "Shift" },
+    DoNotDisturb: { value: 0x08, name: "Do Not Disturb" },
+    Mute: { value: 0x09, name: "Mute" },
+    ToneEnable: { value: 0x0A, name: "Tone Enable" },
+    HighCutFilter: { value: 0x0B, name: "High Cut Filter" },
+    LowCutFilter: { value: 0x0C, name: "Low Cut Filter" },
+    EqualizerEnable: { value: 0x0D, name: "Equalizer Enable" },
+    SoundFieldOn: { value: 0x0E, name: "Sound Field On" },
+    SurroundOn: { value: 0x0F, name: "Surround On" },
+    Repeat: { value: 0x10, name: "Repeat" },
+    Stereo: { value: 0x11, name: "Stereo" },
+    SamplingRateDetect: { value: 0x12, name: "Sampling Rate Detect" },
+    Spinning: { value: 0x13, name: "Spinning" },
+    CAV: { value: 0x14, name: "CAV" },
+    CLV: { value: 0x15, name: "CLV" },
+    RecordingFormatDetect: { value: 0x16, name: "Recording Format Detect" },
+    OffHook: { value: 0x17, name: "Off-Hook" },
+    Ring: { value: 0x18, name: "Ring" },
+    MessageWaiting: { value: 0x19, name: "Message Waiting" },
+    DataMode: { value: 0x1A, name: "Data Mode" },
+    BatteryOperation: { value: 0x1B, name: "Battery Operation" },
+    BatteryOk: { value: 0x1C, name: "Battery OK" },
+    BatteryLow: { value: 0x1D, name: "Battery Low" },
+    Speaker: { value: 0x1E, name: "Speaker" },
+    HeadSet: { value: 0x1F, name: "Head Set" },
+    Hold: { value: 0x20, name: "Hold" },
+    Microphone: { value: 0x21, name: "Microphone" },
+    Coverage: { value: 0x22, name: "Coverage" },
+    NightMode: { value: 0x23, name: "Night Mode" },
+    SendCalls: { value: 0x24, name: "Send Calls" },
+    CallPickup: { value: 0x25, name: "Call Pickup" },
+    Conference: { value: 0x26, name: "Conference" },
+    StandBy: { value: 0x27, name: "Stand-by" },
+    CameraOn: { value: 0x28, name: "Camera On" },
+    CameraOff: { value: 0x29, name: "Camera Off" },
+    OnLine: { value: 0x2A, name: "On-Line" },
+    OffLine: { value: 0x2B, name: "Off-Line" },
+    Busy: { value: 0x2C, name: "Busy" },
+    Ready: { value: 0x2D, name: "Ready" },
+    PaperOut: { value: 0x2E, name: "Paper-Out" },
+    PaperJam: { value: 0x2F, name: "Paper-Jam" },
+    Remote: { value: 0x30, name: "Remote" },
+    Forward: { value: 0x31, name: "Forward" },
+    Reverse: { value: 0x32, name: "Reverse" },
+    Stop: { value: 0x33, name: "Stop" },
+    Rewind: { value: 0x34, name: "Rewind" },
+    FastForward: { value: 0x35, name: "Fast Forward" },
+    Play: { value: 0x36, name: "Play" },
+    Pause: { value: 0x37, name: "Pause" },
+    Record: { value: 0x38, name: "Record" },
+    Error: { value: 0x39, name: "Error" },
+    Selected: { value: 0x3A, name: "Usage Selected Indicator" },
+    InUse: { value: 0x3B, name: "Usage In Use Indicator" },
+    MultiMode: { value: 0x3C, name: "Usage Multi Mode Indicator" },
+    On: { value: 0x3D, name: "Indicator On" },
+    Flash: { value: 0x3E, name: "Indicator Flash" },
+    SlowBlink: { value: 0x3F, name: "Indicator Slow Blink" },
+    FastBlink: { value: 0x40, name: "Indicator Fast Blink" },
+    Off: { value: 0x41, name: "Indicator Off" },
+    FlashOnTime: { value: 0x42, name: "Flash On Time" },
+    SlowBlinkOnTime: { value: 0x43, name: "Slow Blink On Time" },
+    SlowBlinkOffTime: { value: 0x44, name: "Slow Blink Off Time" },
+    FastBlinkOnTime: { value: 0x45, name: "Fast Blink On Time" },
+    FastBlinkOffTime: { value: 0x46, name: "Fast Blink Off Time" },
+    Color: { value: 0x47, name: "Usage Indicator Color" },
+    Red: { value: 0x48, name: "Indicator Red" },
+    Green: { value: 0x49, name: "Indicator Green" },
+    Amber: { value: 0x4A, name: "Indicator Amber" },
+    Generic: { value: 0x4B, name: "Generic Indicator" },
+    SystemSuspend: { value: 0x4C, name: "System Suspend" },
+    ExternalPower: { value: 0x4D, name: "External Power Connected" },
+    Reserved: { value: [0x4E,0xFFFF], name: "Reserved" },
+};
+
+
+
 var HIDUsagePage = {
     name: "HIDUsagePage",
     Undefined:              { value: 0x00, usage: null, name: "Undefined" },
@@ -118,7 +206,7 @@ var HIDUsagePage = {
     Game:                   { value: 0x05, usage: null, name: "Game" },
     GenericDevice:          { value: 0x06, usage: null, name: "Generic Device" },
     Keyboard:               { value: 0x07, usage: null, name: "Keyboard/Keypad" },
-    LED:                    { value: 0x08, usage: null, name: "LEDs" },
+    LED:                    { value: 0x08, usage: HIDUsageLED, name: "LEDs" },
     Button:                 { value: 0x09, usage: HIDUsageButton, name: "Button" },
     Ordinal:                { value: 0x0A, usage: null, name: "Ordinal" },
     Telephony:              { value: 0x0B, usage: null, name: "Telephony" },
@@ -135,6 +223,7 @@ var HIDUsagePage = {
     MagStripeReader:        { value: 0x8E, usage: null, name: "Magnetic Stripe Reading" },
     PointOfSale:            { value: 0x8F, usage: null, name: "Reserved Point of Sale" },
     Camera:                 { value: 0x90, usage: null, name: "Camera" },
+    VendorDefined:          { value: 0xFF, usage: HIDUsageVendor, name: "VendorDefined" },
 };
 
 
@@ -523,88 +612,6 @@ Usage ID (Dec)	Usage ID (Hex)	Usage Name	Position	PC- AT	Mac UNI Boot X
 
 
 
-8. Led
-
-Usage ID	Usage Name	Usage Type	Section	
-00	Undefined	
-01	Num Lock	OOC	11.1	
-02	Caps Lock	OOC	11.1	
-03	Scroll Lock	OOC	11.1	
-04	Compose	OOC	11.1	
-05	Kana	OOC	11.1	
-06	Power	OOC	11.6	
-07	Shift	OOC	11.1	
-08	Do Not Disturb	OOC	11.2	
-09	Mute	OOC	11.3	
-0A	Tone Enable	OOC	11.3	
-0B	High Cut Filter	OOC	11.3	
-0C	Low Cut Filter	OOC	11.3	
-0D	Equalizer Enable	OOC	11.3	
-0E	Sound Field On	OOC	11.3	
-0F	Surround On	OOC	11.3	
-10	Repeat	OOC	11.3	
-11	Stereo	OOC	11.3	
-12	Sampling Rate Detect	OOC	11.3	
-13	Spinning	OOC	11.4	
-14	CAV	OOC	11.3	
-15	CLV	OOC	11.3	
-16	Recording Format Detect	OOC	11.4	
-17	Off-Hook	OOC	11.2	
-18	Ring	OOC	11.2	
-19	Message Waiting	OOC	11.2	
-1A	Data Mode	OOC	11.2	
-1B	Battery Operation	OOC	11.6	
-1C	Battery OK	OOC	11.6	
-1D	Battery Low	OOC	11.6	
-1E	Speaker	OOC	11.2	
-1F	Head Set	OOC	11.2	
-20	Hold	OOC	11.2	
-21	Microphone	OOC	11.2	
-22	Coverage	OOC	11.2	
-23	Night Mode	OOC	11.2	
-24	Send Calls	OOC	11.2	
-25	Call Pickup	OOC	11.2	
-26	Conference	OOC	11.2	
-27	Stand-by	OOC	11.6	
-28	Camera On	OOC	11.3	
-29	Camera Off	OOC	11.3	
-2A	On-Line	OOC	11.6	
-2B	Off-Line	OOC	11.6	
-2C	Busy	OOC	11.6	
-2D	Ready	OOC	11.6	
-2E	Paper-Out	OOC	11.5	
-2F	Paper-Jam	OOC	11.5	
-30	Remote	OOC	11.6	
-31	Forward	OOC	11.4	
-32	Reverse	OOC	11.4	
-33	Stop	OOC	11.4	
-34	Rewind	OOC	11.4	
-35	Fast Forward	OOC	11.4	
-36	Play	OOC	11.4	
-37	Pause	OOC	11.4	
-38	Record	OOC	11.4	
-39	Error	OOC	11.6	
-3A	Usage Selected Indicator	US	11.6	
-3B	Usage In Use Indicator	US	11.6	
-3C	Usage Multi Mode Indicator	UM	11.6	
-3D	Indicator On	Sel	11.6	
-3E	Indicator Flash	Sel	11.6	
-3F	Indicator Slow Blink	Sel	11.6	
-40	Indicator Fast Blink	Sel	11.6	
-41	Indicator Off	Sel	11.6	
-42	Flash On Time	DV	11.6	
-43	Slow Blink On Time	DV	11.6	
-44	Slow Blink Off Time	DV	11.6	
-45	Fast Blink On Time	DV	11.6	
-46	Fast Blink Off Time	DV	11.6	
-47	Usage Indicator Color	UM	11.6	
-48	Indicator Red	Sel	11.6	
-49	Indicator Green	Sel	11.6	
-4A	Indicator Amber	Sel	11.6	
-4B	Generic Indicator	OOC	11.6	
-4C	System Suspend	OOC	11.6	
-4D	External Power Connected	OOC	11.6	
-4E-FFFF	Reserved	
 
 
 0A. Ordinal
