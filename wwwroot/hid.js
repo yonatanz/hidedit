@@ -200,10 +200,12 @@ HIDDescriptor.prototype.parse = function (stream) {
     }
 };
 
-HIDDescriptor.prototype.pack = function (stream) {
+HIDDescriptor.prototype.pack = function () {
+    var stream = new WriteStream();
     for (var index in this.items)
     {
         var item = this.items[index];
         item.pack(stream);
     }
+    return stream.getData();
 };

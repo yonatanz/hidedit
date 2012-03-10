@@ -52,6 +52,11 @@ DIV.pressed
  * Item tree view *
  ******************/
 
+#itemtree
+{
+    height: 50%;
+    overflow: scroll;
+}
 DIV.treeitem
 {
     font-size: 80%;

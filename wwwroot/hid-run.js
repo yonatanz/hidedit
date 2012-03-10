@@ -113,7 +113,6 @@ HIDRun.prototype.parseUnitExponent = function (val) {
 }
 
 HIDRun.prototype.parseUnit = function (data) {
-    console.log(data);
     var nibbles = new Array();
     for (var nib = 0; nib < 8; nib++)
     {
@@ -132,7 +131,6 @@ HIDRun.prototype.parseUnit = function (data) {
         part.exp = this.parseUnitExponent(nibbles[nib]);
         unitObject.parts.push(part);
     }
-    console.log(unitObject);
     return unitObject;
 }
 
