@@ -53,10 +53,6 @@ function hex2dec(hex) {
     return parseInt(hex, 16);
 }
 
-function error(msg) {
-    alert(msg);
-}
-
 function parseEnum(value, type) {
     for (var candName in type) {
         var candObj = type[candName];
@@ -68,7 +64,7 @@ function parseEnum(value, type) {
                 return candObj;
         }
     }
-    error("Value " + value + " (0x" + dec2hex(value) + ") is not part of " + type.name);
+    throw "Value " + value + " (0x" + dec2hex(value) + ") is not part of " + type.name;
 }
 
 function cleanHex(data) {
@@ -85,9 +81,9 @@ function cleanHex(data) {
 
 loadScript("hid-stream.js");
 loadScript("hut.js");
+loadScript("hid-report.js");
 loadScript("hid.js");
 loadScript("hid-run-state.js");
-loadScript("hid-report.js");
 loadScript("hid-run.js");
 loadScript("hidedit-tree.js");
 loadScript("hidedit-reports.js");

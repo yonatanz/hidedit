@@ -23,6 +23,8 @@ function HIDRunState() {
 HIDRunState.prototype.initState = function () {
     this.initGlobalState();
     this.initLocalState();
+
+    this.usageQueue = new Array();
 }
 
 HIDRunState.prototype.initGlobalState = function () {
@@ -49,6 +51,33 @@ HIDRunState.prototype.initLocalState = function () {
     this.strMin = null;
     this.strMax = null;
     this.delim = null;
+}
+
+HIDRunState.prototype.dequeueUsage = function () {
+    if (this.usageQueue.length < 1)
+        return null;
+    var usage = this.usageQueue.shift();
+    return usage;
+}
+
+HIDRunState.prototype.handleNewState = function () {
+    // Add usage min/max to usage queue
+    if ((this.usageMin !== null) && (this.usageMax !== null) && (this.usagePage != null)) {
+        if (this.usagePage.usage == null)
+            throw "Usage page " + this.usagePage.name + " does not contain usages";
+        var num;
+        for (num = this.usageMin; num <= this.usageMax; num++) {
+            var usage = parseEnum(num, this.usagePage.usage);
+            this.usageQueue.push(usage);
+        }
+        this.usageMin = null;
+        this.usageMax = null;
+    }
+    // Add single usage to usage queue
+    if (this.usage != null) {
+        this.usageQueue.push(this.usage);
+        this.usage = null;
+    }
 }
 
 HIDRunState.prototype.clone = function () {

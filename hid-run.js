@@ -16,66 +16,136 @@ You should have received a copy of the GNU General Public License
 along with hidedit.  If not, see http://www.gnu.org/licenses/
 */
 
+var HIDUnitSystem = {
+    name: "HIDUnitSystem",
+    SILinear:       { value: 0, name: "SI Linear",        units: { 1:"Centimeter", 2:"Gram", 3:"Seconds", 4:"Kelvin",     5:"Ampere", 6:"Candela" } },
+    SIRotation:     { value: 1, name: "SI Rotation",      units: { 1:"Radians",    2:"Gram", 3:"Seconds", 4:"Kelvin",     5:"Ampere", 6:"Candela" } },
+    EnglishLinear:  { value: 2, name: "English Linear",   units: { 1:"Inch",       2:"Slug", 3:"Seconds", 4:"Fahrenheit", 5:"Ampere", 6:"Candela" } },
+    EnglishRotation:{ value: 3, name: "English Rotation", units: { 1:"Degrees",    2:"Slug", 3:"Seconds", 4:"Fahrenheit", 5:"Ampere", 6:"Candela" } },
+};
+
 function HIDCollection(type, state) {
     this.type = type;
     this.state = state;
+}
+
+function HIDUnit(system) {
+    this.system = system;
+    this.parts = new Array();
+}
+
+HIDUnit.prototype.makeDescription = function()
+{
+    if (this.parts.length != 6)
+        throw "Invalid amount of unit parts: " + this.parts.length;
+    var ret = "";
+    for (var partIndex = 0; partIndex < this.parts.length; partIndex++)
+    {
+        var part = this.parts[partIndex];
+        if (part.exp == 0)
+            continue;
+        if (ret.length > 0)
+            ret += " * ";
+        ret += part.unit + "^" + part.exp;
+    }
+    ret = this.system.name + ": " + ret;
+    return ret;
 }
 
 function HIDRun(descriptor) {
     // Run's parameters
     this.descriptor = descriptor;
 
-    // Run's state
+    // Run's report state
     this.state = new HIDRunState();
     this.collectionStack = new Array();
+    // Run's internal state
+    this.useReportIDs = false;
 
     // Run's output
     this.reports = new Array();
 }
 
-HIDRun.prototype.addReport = function (item) {
-    var check = this.checkReportState();
-    if (check != null)
-        return check;
+HIDRun.prototype.findReportByTypeAndID = function (type, id) {
+    for (var index in this.reports) {
+        var report = this.reports[index];
 
-    var report = null;
-    switch (item.tag) {
-        case HIDItemMainTag.Input:
-            report = new HIDReport(HIDReportType.Input, item.data, this.state);
-            break;
-        case HIDItemMainTag.Output:
-            report = new HIDReport(HIDReportType.Output, item.data, this.state);
-            break;
-        case HIDItemMainTag.Feature:
-            report = new HIDReport(HIDReportType.Feature, item.data, this.state);
-            break;
-        default:
-            return "Cannot add report. Unknown report type";
+        if (report.type != type)
+            continue;
+        if ((report.id == 0) && (id == 0))
+            return report;
+        if ((report.id != 0) && (id != 0) && (report.id == id))
+            return report;
     }
 
-    item.dataDesc = report.makeDescription();
-
+    var report = new HIDReport(type, id);
     this.reports.push(report);
+    return report;
+}
+
+HIDRun.prototype.addToReport = function (item) {
+    this.checkReportState();
+
+    var report = this.findReportByTypeAndID(item.tag.type, this.useReportIDs ? this.state.repID : 0);
+
+    item.dataDesc = report.addData(item.data, this.state);
 
     // Revert back to collection's local state
     this.state.assignLocalState(this.collectionStack[this.collectionStack.length - 1].state);
-    return null;
+}
+
+HIDRun.prototype.countItemsByTag = function (items, tag) {
+    var count = 0;
+    for (var index in items) {
+        var item = items[index];
+        if (item.tag == tag)
+            count++;
+    }
+    return count;
+}
+
+HIDRun.prototype.parseUnitExponent = function (val) {
+    if ((val >= 0) && (val <= 7))
+        return val;
+    if ((val >= 8) && (val <= 15))
+        return val - 16;
+    throw "Invalid unit exponent value";
+}
+
+HIDRun.prototype.parseUnit = function (data) {
+    var nibbles = new Array();
+    for (var nib = 0; nib < 8; nib++)
+    {
+        var value = data & 0x0F;
+        nibbles.push(value);
+        data = data >> 4;
+    }
+
+    var system = parseEnum(nibbles[0], HIDUnitSystem);
+
+    var unitObject = new HIDUnit(system);
+    for (nib = 1; nib < 7; nib++)
+    {
+        var part = new Array();
+        part.unit = system.units[nib];
+        part.exp = this.parseUnitExponent(nibbles[nib]);
+        unitObject.parts.push(part);
+    }
+    return unitObject;
 }
 
 HIDRun.prototype.runItem = function (item) {
-    var ret = null;
     switch (item.tag) {
         case HIDItemGlobalTag.UsagePage:
             this.state.usagePage = parseEnum(item.data, HIDUsagePage);
             item.dataDesc = this.state.usagePage.name;
             break;
         case HIDItemLocalTag.Usage:
-            if (this.state.usagePage.usage != null) {
-                this.state.usage = parseEnum(item.data, this.state.usagePage.usage);
-                item.dataDesc = this.state.usage.name;
-            }
-            else
-                item.dataDesc = item.data;
+            if (this.state.usagePage.usage == null)
+                throw "Usage page " + this.state.usagePage.name + " does not contain usages";
+
+            this.state.usage = parseEnum(item.data, this.state.usagePage.usage);
+            item.dataDesc = this.state.usage.name;
             break;
         case HIDItemLocalTag.UsageMinimum:
             this.state.usageMin = item.data;
@@ -105,12 +175,22 @@ HIDRun.prototype.runItem = function (item) {
             this.state.repCount = item.data;
             item.dataDesc = this.state.repCount;
             break;
+        case HIDItemGlobalTag.Unit:
+            var unitObj = this.parseUnit(item.data);
+            this.state.unit = unitObj;
+            item.dataDesc = unitObj.makeDescription();
+            break;
+        case HIDItemGlobalTag.UnitExponent:
+            this.state.unitExp = item.data;
+            item.dataDesc = this.state.unitExp;
+            break;
         case HIDItemMainTag.Input:
         case HIDItemMainTag.Output:
         case HIDItemMainTag.Feature:
-            ret = this.addReport(item);
+            this.addToReport(item);
             break;
         case HIDItemMainTag.Collection:
+            var usage = this.state.dequeueUsage();
             var collType = parseEnum(item.data, HIDItemCollectionType);
             this.collectionStack.push(new HIDCollection(collType, this.state.clone()));
             item.dataDesc = collType.name;
@@ -118,46 +198,47 @@ HIDRun.prototype.runItem = function (item) {
             break;
         case HIDItemMainTag.EndCollection:
             if (this.collectionStack.length < 1)
-                return "EndCollection without collection";
+                throw "EndCollection without collection";
             var coll = this.collectionStack.pop();
             item.dataDesc = coll.type.name;
             break;
         default:
-            return "Unsupported item tag during run: " + item.tag.name;
+            throw "Unsupported item tag during run: " + item.tag.name;
     }
+    this.state.handleNewState();
     item.indent += this.collectionStack.length;
-    return ret;
 }
 
 HIDRun.prototype.checkReportState = function () {
-    if (this.state.usage == null)
-        return "Report must have a usage";
+/*
+    if (this.state.usageQueue.length == 0)
+        throw "Report must have a usage";
+*/
     if (this.state.usagePage == null)
-        return "Report must have a usage page";
+        throw "Report must have a usage page";
     if (this.state.logicalMin == null)
-        return "Report must have a logical minimum";
+        throw "Report must have a logical minimum";
     if (this.state.logicalMax == null)
-        return "Report must have a logical maximum";
+        throw "Report must have a logical maximum";
     if (this.state.repSize == null)
-        return "Report must have a size";
+        throw "Report must have a size";
     if (this.state.repCount == null)
-        return "Report must have a count";
+        throw "Report must have a count";
     if (this.collectionStack.length < 1)
-        return "Report must be in a collection";
-    return null;
+        throw "Report must be in a collection";
 }
 
+var log = "";
+
 HIDRun.prototype.run = function () {
-    var log = "";
     this.state.initState();
     this.reports = new Array();
     this.collectionStack = new Array();
+    this.useReportIDs = (this.countItemsByTag(this.descriptor.items, HIDItemGlobalTag.ReportID) > 0);
+
     for (var index in this.descriptor.items) {
         var item = this.descriptor.items[index];
-        var ret = this.runItem(item);
-        if (ret != null)
-            return log + ret;
+        this.runItem(item);
         log += "Run item: " + item.tag.name + "(" + item.dataDesc + ")\n";
     }
-    return log;
 };

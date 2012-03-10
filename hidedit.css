@@ -52,6 +52,11 @@ DIV.pressed
  * Item tree view *
  ******************/
 
+#itemtree
+{
+    height: 50%;
+    overflow: scroll;
+}
 DIV.treeitem
 {
     font-size: 80%;
@@ -70,6 +75,21 @@ DIV.report
 {
     display: inline-block;
     border: 1px solid black;
-    padding: 10px;
+    padding: 0px;
     margin-right: 10px;
+}
+
+DIV.report P
+{
+    padding: 0px;
+    margin: 0px 10px 0px 10px;
+}
+
+DIV.report P.Type
+{
+    text-align: center;
+    font-weight: bold;
+    background: silver;
+    margin: 0px;
+    border-bottom: 1px solid black;
 }
