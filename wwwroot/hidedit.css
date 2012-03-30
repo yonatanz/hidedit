@@ -47,6 +47,10 @@ DIV.pressed
     border-top: 2px solid #808080;
     border-left: 2px solid #808080;
 }
+DIV.disabled
+{
+    background-image: url('toolbar-disabled.png');	
+}
 
 /******************
  * Item tree view *
@@ -60,6 +64,15 @@ DIV.pressed
 DIV.treeitem
 {
     font-size: 80%;
+    cursor: default;
+}
+DIV.selectedItem
+{
+    background-color: #b0b0ff;
+}
+DIV.errorItem
+{
+    color: #c00000;
 }
 DIV.treeitemindent
 {
@@ -77,6 +90,13 @@ DIV.report
     border: 1px solid black;
     padding: 0px;
     margin-right: 10px;
+}
+
+DIV.reportError
+{
+    display: inline-block;
+    border: 1px solid red;
+    padding: 10px;
 }
 
 DIV.report P

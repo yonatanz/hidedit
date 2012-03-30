@@ -79,15 +79,30 @@ function cleanHex(data) {
     return hex;
 }
 
+function addClass(item, className) {
+	if (item.className.indexOf(className) >= 0)
+		return;
+
+	item.className += " " + className + " ";
+}
+
+function delClass(item, className) {
+	var index = item.className.indexOf(" " + className + " ");
+	if (index < 0)
+		return;
+
+	item.className = item.className.substr(0, index) + item.className.substr(index + className.length + 2, item.className.length - (index + className.length + 2));
+}
+
 loadScript("hid-stream.js");
 loadScript("hut.js");
 loadScript("hid-report.js");
 loadScript("hid.js");
 loadScript("hid-run-state.js");
 loadScript("hid-run.js");
+loadScript("hidedit-toolbar.js");
 loadScript("hidedit-tree.js");
 loadScript("hidedit-reports.js");
-loadScript("hidedit-toolbar.js");
 
 function writelog(str) {
     var log = document.getElementById('log');

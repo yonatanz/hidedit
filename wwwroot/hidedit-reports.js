@@ -21,8 +21,17 @@ function Reports(elemID) {
 }
 
 Reports.prototype.clear = function () {
-    while (this.elem.childNodes.length > 0)
-        this.elem.removeChild(this.elem.childNodes[0]);
+	while (this.elem.childNodes.length > 0)
+		this.elem.removeChild(this.elem.childNodes[0]);
+};
+
+Reports.prototype.showError = function (error) {
+	this.clear();
+
+	var reportElem = document.createElement('DIV');
+	reportElem.className = "reportError";
+	reportElem.textContent = error;
+	this.elem.appendChild(reportElem);
 };
 
 Reports.prototype.show = function (reports) {
@@ -91,8 +100,6 @@ Reports.prototype.show = function (reports) {
         }
 
         reportElem.appendChild(table);
-
-
 
         this.elem.appendChild(reportElem);
     }
