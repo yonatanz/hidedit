@@ -17,35 +17,92 @@ along with hidedit.  If not, see http://www.gnu.org/licenses/
 */
 function Tree(elemID) {
     this.elemID = elemID;
-    this.elem = document.getElementById(this.elemID);
+    this.root = document.getElementById(this.elemID);
+    this.descriptor = null;
+
+    this.selectedItem = null;
+    this.errorItem = null;
+    this.clear();
 }
 
 Tree.prototype.clear = function () {
-    while (this.elem.childNodes.length > 0)
-        this.elem.removeChild(this.elem.childNodes[0]);
+	while (this.root.childNodes.length > 0)
+		this.root.removeChild(this.root.childNodes[0]);
+	this.selectedItem = null;
+	this.errorItem = null;
+	this.enableToolbar();
 };
 
 Tree.prototype.show = function (descriptor) {
-    this.clear();
-    for (var index in descriptor.items) {
-        var item = descriptor.items[index];
+	this.clear();
+	this.descriptor = descriptor;
+	for (var index in descriptor.items) {
+		var item = descriptor.items[index];
 
-        var itemElem = document.createElement('DIV');
-        itemElem.className = "treeitem";
+		var itemElem = document.createElement('DIV');
+		item.elem = itemElem;
+		itemElem.className = "treeitem";
+		itemElem.onclick = function () { treeView.selectItem(this); };
+		itemElem.itemIndex = index;
 
-        var indentElem = null;
-        for (var i = 0; i < item.indent; i++) {
-            indentElem  = document.createElement('DIV');
-            indentElem.className = "treeitemindent";
-            itemElem.appendChild(indentElem);
-        }
+		var indentElem = null;
+		for (var i = 0; i < item.indent; i++) {
+			indentElem = document.createElement('DIV');
+			indentElem.className = "treeitemindent";
+			itemElem.appendChild(indentElem);
+		}
 
-        var textElem = document.createElement('TextNode');
-        textElem.textContent = item.tag.name + "(" + item.dataDesc + ")";
-        itemElem.appendChild(textElem);
+		var textElem = document.createElement('TextNode');
+		textElem.textContent = item.tag.name + "(" + item.dataDesc + ")";
+		itemElem.appendChild(textElem);
 
-        this.elem.appendChild(itemElem);
-    }
+		this.root.appendChild(itemElem);
+	}
+	this.enableToolbar();
+};
+
+Tree.prototype.enableToolbar = function () {
+	enableToolbarButton(ToolbarButton.AddItem, true);
+	var enable = (this.selectedItem != null);
+	enableToolbarButton(ToolbarButton.DelItem, enable);
+	enableToolbarButton(ToolbarButton.EditItem, enable);
+}
+
+Tree.prototype.selectIndex = function (index) {
+	if (this.root.childNodes.length < 1)
+		return;
+
+	if (index >= this.root.childNodes.length)
+		index = this.root.childNodes.length - 1;
+
+	this.selectItem(this.root.childNodes[index]);
+}
+
+Tree.prototype.selectItem = function (treeItem) {
+	var oldSelected = this.selectedItem;
+	if (this.selectedItem != null) {
+		delClass(this.selectedItem, "selectedItem");
+		this.selectedItem = null;
+	}
+
+	if ((treeItem != null) && (treeItem != oldSelected)) {
+		this.selectedItem = treeItem;
+		addClass(this.selectedItem, "selectedItem");
+	}
+	this.enableToolbar();
+};
+
+Tree.prototype.setErrorItem = function (treeItem) {
+	var oldError = this.errorItem;
+	if (this.errorItem != null) {
+		delClass(this.errorItem, "errorItem");
+		this.errorItem = null;
+	}
+
+	if ((treeItem != null) && (treeItem != oldError)) {
+		this.errorItem = treeItem;
+		addClass(this.errorItem, "errorItem");
+	}
 };
 
 var treeView = new Tree("itemtree");

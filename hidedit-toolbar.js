@@ -37,6 +37,13 @@ function clearToolbarState()
     curToolbar.className="tbbtn";
 }
 
+function enableToolbarButton(btn, enable)
+{
+	clearToolbarState();
+    var tb = document.getElementById("toolbar");
+	tb.childNodes[btn.value].className = "tbbtn" + (enable ? "" : " disabled");
+}
+
 function onToolbarMouseDown(o)
 {
     clearToolbarState();
@@ -88,8 +95,18 @@ function populateToolbar() {
 
 function onDescriptorChanged() {
     var run = new HIDRun(descriptor);
-    run.run();
-    treeView.show(descriptor);
+	try
+	{
+	    run.run();
+	}
+	catch (runException)
+	{
+		treeView.show(descriptor);
+		treeView.setErrorItem(runException.item.elem);
+		reportsView.showError(runException.error);
+		return;
+	}
+	treeView.show(descriptor);
     reportsView.show(run.reports);
 }
 
@@ -171,8 +188,20 @@ var curExample = 0;
 function onLoadClicked()
 {
     var s = new ReadStream(examples[curExample]);
-    descriptor = new HIDDescriptor();
-    descriptor.parse(s);
+
+	var newDesc = new HIDDescriptor();
+
+	try
+	{
+		newDesc.parse(s);
+	}
+	catch (error)
+	{
+		alert(error);
+		return;
+	}
+
+    descriptor = newDesc;
     onDescriptorChanged();
 
     curExample++;
@@ -192,6 +221,13 @@ function onAddItemClicked()
 
 function onDelItemClicked()
 {
+	if (treeView.selectedItem == null)
+		return;
+
+	var index = treeView.selectedItem.itemIndex;
+	descriptor.items.splice(treeView.selectedItem.itemIndex, 1);
+    onDescriptorChanged();
+	treeView.selectIndex(index);
 }
 
 function onEditItemClicked()

@@ -130,14 +130,14 @@ function packHIDItemPrefix(tag, type, size) {
            packSize(size);
 }
 
-function HIDItem() {
+function HIDItem(indent) {
     // Parsed members
     this.type = null;
     this.tag = null;
     this.data = null;
     // Members filled by run
     this.dataDesc = null;
-    this.indent = 0;
+    this.indent = indent;
 }
 
 // Read and parse a HID Item from the stream
@@ -192,10 +192,18 @@ function HIDDescriptor() {
 HIDDescriptor.prototype.parse = function (stream) {
     this.items = new Array();
 
+	var indent = 0;
     while (!stream.atEnd())
     {
-        var item = new HIDItem();
+        var item = new HIDItem(indent);
         item.parse(stream);
+		if (item.tag == HIDItemMainTag.Collection)
+			indent++;
+		else if (item.tag == HIDItemMainTag.EndCollection)
+		{
+			item.indent--;
+			indent--;
+		}
         this.items.push(item);
     }
 };

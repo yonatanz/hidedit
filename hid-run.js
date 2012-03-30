@@ -194,7 +194,6 @@ HIDRun.prototype.runItem = function (item) {
             var collType = parseEnum(item.data, HIDItemCollectionType);
             this.collectionStack.push(new HIDCollection(collType, this.state.clone()));
             item.dataDesc = collType.name;
-            item.indent--;
             break;
         case HIDItemMainTag.EndCollection:
             if (this.collectionStack.length < 1)
@@ -206,7 +205,6 @@ HIDRun.prototype.runItem = function (item) {
             throw "Unsupported item tag during run: " + item.tag.name;
     }
     this.state.handleNewState();
-    item.indent += this.collectionStack.length;
 }
 
 HIDRun.prototype.checkReportState = function () {
@@ -228,7 +226,10 @@ HIDRun.prototype.checkReportState = function () {
         throw "Report must be in a collection";
 }
 
-var log = "";
+function HIDRunException(error, item) {
+    this.error = error;
+    this.item = item;
+}
 
 HIDRun.prototype.run = function () {
     this.state.initState();
@@ -238,7 +239,13 @@ HIDRun.prototype.run = function () {
 
     for (var index in this.descriptor.items) {
         var item = this.descriptor.items[index];
-        this.runItem(item);
-        log += "Run item: " + item.tag.name + "(" + item.dataDesc + ")\n";
+		try
+		{
+			this.runItem(item);
+		}
+		catch (error)
+		{
+			throw new HIDRunException(error, item);
+		}
     }
 };
