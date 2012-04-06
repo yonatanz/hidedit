@@ -23,10 +23,33 @@ var HIDReportType = {
     name: "HIDReportType"
 };
 
-function HIDReportEntry(data, usage, bits) {
-    this.data = data;
+function HIDReportEntryAttributes(item) {
+	// Parse the item.data
+	switch (item.tag) {
+		case HIDItemMainTag.Input:
+			break;
+		case HIDItemMainTag.Output:
+			break;
+		case HIDItemMainTag.Feature:
+			break;
+		default:
+			throw "This item tag does not have attribute data: " + item.tag.name;
+	}
+}
+
+HIDReportEntryAttributes.prototype.hasAttribute = function (attr) {
+	return false;
+}
+
+HIDReportEntryAttributes.prototype.makeDescription = function () {
+	return "TBD";
+}
+
+function HIDReportEntry(attributes, usage, bits) {
     this.usage = usage;
     this.bits = bits;
+    this.attributes = attributes;
+    this.attributesDesc = attributes.makeDescription();
     // #### Todo: 
     /*
     this.logicalMin = ;
@@ -43,14 +66,16 @@ function HIDReport(type, id) {
     this.entries = new Array();
 }
 
-HIDReport.prototype.addData = function (data, state) {
-    var num;
-    for (num = 0; num < state.repCount; num++)
-    {
-        var usage = state.dequeueUsage();
-        var entry = new HIDReportEntry(data, usage, state.repSize);
-        this.entries.push(entry);
-    }
+HIDReport.prototype.addData = function (item, state) {
+	var attr = new HIDReportEntryAttributes(item);
+
+	var num;
+	for (num = 0; num < state.repCount; num++) {
+		var usage = state.dequeueUsage();
+		var entry = new HIDReportEntry(attr, usage, state.repSize);
+		this.entries.push(entry);
+	}
+	return attr.makeDescription();
 }
 
 HIDReport.prototype.makeDescription = function () {

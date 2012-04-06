@@ -57,7 +57,7 @@ function Toolbar()
 Toolbar.prototype.clearState = function () {
     if (this.curButton == null)
         return;
-    this.curButton.className="tbbtn";
+    delClass(this.curButton, "pressed");
 };
 
 Toolbar.prototype.enableButton = function (btn, enable) {
@@ -75,11 +75,11 @@ Toolbar.prototype.isEnabled = function (btn) {
 }
 
 Toolbar.prototype.onMouseDown = function (o) {
-    this.clearState();
+	this.clearState();
 	if (!this.isEnabled(o))
 		return;
-    this.curButton = o;
-    this.curButton.className="tbbtn pressed";
+	this.curButton = o;
+	addClass(this.curButton, "pressed");
 }
 
 Toolbar.prototype.onMouseUp = function (o) {
@@ -229,8 +229,8 @@ function onDelItemClicked()
 	treeView.selectIndex(index);
 }
 
-function onEditItemClicked()
-{
+function onEditItemClicked() {
+	editItemDlg.show();
 }
 
 function onAddReportClicked()

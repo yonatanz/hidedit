@@ -140,6 +140,7 @@ var scriptLoaded = false;
 var toolbar = null;
 var treeView = null;
 var reportsView = null;
+var editItemDlg = null;
 
 function onScriptLoaded() {
 	// prevent double-initialization
@@ -154,4 +155,7 @@ function onScriptLoaded() {
 	toolbar = new Toolbar();
 	treeView = new Tree("itemtree");
 	reportsView = new Reports("reportview");
+
+	editItemDlg = new Dialog("Edit item", "dlg-edititem.html");
+	editItemDlg.setSize(500, 300);
 }
