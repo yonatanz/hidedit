@@ -104,5 +104,3 @@ Reports.prototype.show = function (reports) {
         this.elem.appendChild(reportElem);
     }
 };
-
-var reportsView = new Reports("reportview");

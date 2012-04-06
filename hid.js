@@ -22,25 +22,24 @@ var HID_LONG_ITEM_SIZE = 2;
 
 // HID Descriptor Item Type
 var HIDItemType = {
-    name: "HIDItemType",
     Main:       { value: 0, name: "Main" },
     Global:     { value: 1, name: "Global" },
     Local:      { value: 2, name: "Local" },
+    name: "HIDItemType"
 };
 
 // HID Descriptor Main Item Tag
 var HIDItemMainTag = {
-    name: "HIDItemMainTag",
     Input:          { value: 8, name: "Input", type: HIDReportType.Input },
     Output:         { value: 9, name: "Output", type: HIDReportType.Output },
     Feature:        { value: 11, name: "Feature", type: HIDReportType.Feature },
     Collection:     { value: 10, name: "Collection" },
     EndCollection:  { value: 12, name: "EndCollection" },
+    name: "HIDItemMainTag"
 };
 
 // HID Descriptor Global Item Tag
 var HIDItemGlobalTag = {
-    name: "HIDItemGlobalTag",
     UsagePage:      { value: 0, name: "Usage Page" },
     LogicalMinimum: { value: 1, name: "Logical Minimum" },
     LogicalMaximum: { value: 2, name: "Logical Maximum" },
@@ -53,11 +52,11 @@ var HIDItemGlobalTag = {
     ReportCount:    { value: 9, name: "Report Count" },
     Push:           { value: 10, name: "Push" },
     Pop:            { value: 11, name: "Pop" },
+    name: "HIDItemGlobalTag"
 };
 
 // HID Descriptor Local Item Tag
 var HIDItemLocalTag = {
-    name: "HIDItemLocalTag",
     Usage:              { value: 0, name: "Usage" },
     UsageMinimum:       { value: 1, name: "Usage Minimum" },
     UsageMaximum:       { value: 2, name: "Usage Maximum" },
@@ -68,11 +67,11 @@ var HIDItemLocalTag = {
     StringMinimum:      { value: 8, name: "String Minimum" },
     StringMaximum:      { value: 9, name: "String Maximum" },
     Delimiter:          { value: 10, name: "Delimiter" },
+    name: "HIDItemLocalTag"
 };
 
 // Collection Item Type
 var HIDItemCollectionType = {
-    name: "HIDItemCollectionType",
     Physical:       { value: 0, name: "Physical" },
     Application:    { value: 1, name: "Application" },
     Logical:        { value: 2, name: "Logical" },
@@ -81,6 +80,7 @@ var HIDItemCollectionType = {
     UsageSwitch:    { value: 5, name: "Usage Switch" },
     UsageModifier:  { value: 6, name: "Usage Modifier" },
     VendorDefined:  { value: [0x80, 0xff], name: "Vendor defined" },
+    name: "HIDItemCollectionType"
 };
 
 // Object for parsed HID Descriptor Item Prefix

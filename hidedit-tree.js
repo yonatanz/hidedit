@@ -62,10 +62,10 @@ Tree.prototype.show = function (descriptor) {
 };
 
 Tree.prototype.enableToolbar = function () {
-	enableToolbarButton(ToolbarButton.AddItem, true);
+	toolbar.enableButton(ToolbarButton.AddItem, true);
 	var enable = (this.selectedItem != null);
-	enableToolbarButton(ToolbarButton.DelItem, enable);
-	enableToolbarButton(ToolbarButton.EditItem, enable);
+	toolbar.enableButton(ToolbarButton.DelItem, enable);
+	toolbar.enableButton(ToolbarButton.EditItem, enable);
 }
 
 Tree.prototype.selectIndex = function (index) {
@@ -104,5 +104,3 @@ Tree.prototype.setErrorItem = function (treeItem) {
 		addClass(this.errorItem, "errorItem");
 	}
 };
-
-var treeView = new Tree("itemtree");

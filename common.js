@@ -79,6 +79,11 @@ function cleanHex(data) {
     return hex;
 }
 
+function hasClass(item, className) {
+	var index = item.className.indexOf(" " + className + " ");
+	return (index >= 0);
+}
+
 function addClass(item, className) {
 	if (item.className.indexOf(className) >= 0)
 		return;
@@ -94,6 +99,21 @@ function delClass(item, className) {
 	item.className = item.className.substr(0, index) + item.className.substr(index + className.length + 2, item.className.length - (index + className.length + 2));
 }
 
+function onDescriptorChanged() {
+	var run = new HIDRun(descriptor);
+	try {
+		run.run();
+	}
+	catch (runException) {
+		treeView.show(descriptor);
+		treeView.setErrorItem(runException.item.elem);
+		reportsView.showError(runException.error);
+		return;
+	}
+	treeView.show(descriptor);
+	reportsView.show(run.reports);
+}
+
 loadScript("hid-stream.js");
 loadScript("hut.js");
 loadScript("hid-report.js");
@@ -103,6 +123,7 @@ loadScript("hid-run.js");
 loadScript("hidedit-toolbar.js");
 loadScript("hidedit-tree.js");
 loadScript("hidedit-reports.js");
+loadScript("hidedit-dialog.js", true);
 
 function writelog(str) {
     var log = document.getElementById('log');
@@ -111,3 +132,26 @@ function writelog(str) {
     log.appendChild(text);
 }
 
+// Program's global state
+var descriptor = null;
+var scriptLoaded = false;
+
+// UI components
+var toolbar = null;
+var treeView = null;
+var reportsView = null;
+
+function onScriptLoaded() {
+	// prevent double-initialization
+	if (scriptLoaded)
+		return;
+	scriptLoaded = true;
+
+	// Init global state
+	descriptor = new HIDDescriptor();
+
+	// Init UI components
+	toolbar = new Toolbar();
+	treeView = new Tree("itemtree");
+	reportsView = new Reports("reportview");
+}

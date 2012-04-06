@@ -17,10 +17,10 @@
 */
 
 var HIDReportType = {
-    name: "HIDReportType",
     Input:      { value: 0, name: "Input" },
     Output:     { value: 1, name: "Output" },
     Feature:    { value: 2, name: "Feature" },
+    name: "HIDReportType"
 };
 
 function HIDReportEntry(data, usage, bits) {
