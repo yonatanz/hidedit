@@ -17,7 +17,6 @@ along with hidedit.  If not, see http://www.gnu.org/licenses/
 */
 
 var ToolbarButton = {
-    name: "ToolbarButton",
     New:        { value: 0, name: "New",        title: "New descriptor" },
     Load:       { value: 1, name: "Load",       title: "Load descriptor..." },
     Save:       { value: 2, name: "Save",       title: "Save descriptor..." },
@@ -26,51 +25,13 @@ var ToolbarButton = {
     EditItem:   { value: 5, name: "EditItem",   title: "Edit selected item..." },
     AddReport:  { value: 6, name: "AddReport",  title: "Add report..." },
     DelReport:  { value: 7, name: "DelReport",  title: "Delete report..." },
+    name: "ToolbarButton"
 };
 
-var curToolbar = null;
-
-function clearToolbarState()
+function Toolbar()
 {
-    if (curToolbar == null)
-        return;
-    curToolbar.className="tbbtn";
-}
-
-function enableToolbarButton(btn, enable)
-{
-	clearToolbarState();
-    var tb = document.getElementById("toolbar");
-	tb.childNodes[btn.value].className = "tbbtn" + (enable ? "" : " disabled");
-}
-
-function onToolbarMouseDown(o)
-{
-    clearToolbarState();
-    curToolbar = o;
-    curToolbar.className="tbbtn pressed";
-}
-
-function onToolbarMouseUp(o)
-{
-    clearToolbarState();
-    curToolbar = null;
-}
-
-function onToolbarMouseEnter(o)
-{
-    clearToolbarState();
-    curToolbar = o;
-}
-
-function onToolbarMouseOut(o)
-{
-    clearToolbarState();
-    curToolbar = null;
-}
-
-function populateToolbar() {
-    var tb = document.getElementById("toolbar");
+	this.curButton = null;
+	this.elem = document.getElementById("toolbar");
 
     for (var typeName in ToolbarButton)
     {
@@ -82,32 +43,70 @@ function populateToolbar() {
         buttonElem.className = "tbbtn";
         buttonElem.id = typeObj.name;
         buttonElem.title = typeObj.title;
-        buttonElem.onclick = function() {eval('on' + this.id + 'Clicked()');};
-        buttonElem.onmousedown = function() {onToolbarMouseDown(this);};
-        buttonElem.onmouseup = function() {onToolbarMouseUp(this);};
-        buttonElem.onmouseenter = function() {onToolbarMouseEnter(this);};
-        buttonElem.onmouseout = function() {onToolbarMouseOut(this);};
+        buttonElem.onclick = function() {toolbar.onClick(this);};
+        buttonElem.onmousedown = function() {toolbar.onMouseDown(this);};
+        buttonElem.onmouseup = function() {toolbar.onMouseUp(this);};
+        buttonElem.onmouseenter = function() {toolbar.onMouseEnter(this);};
+        buttonElem.onmouseout = function() {toolbar.onMouseOut(this);};
         buttonElem.style.backgroundPosition = "-" + (typeObj.value*32) + "px 0px";
 
-        tb.appendChild(buttonElem);
+        this.elem.appendChild(buttonElem);
     }
 }
 
-function onDescriptorChanged() {
-    var run = new HIDRun(descriptor);
-	try
-	{
-	    run.run();
-	}
-	catch (runException)
-	{
-		treeView.show(descriptor);
-		treeView.setErrorItem(runException.item.elem);
-		reportsView.showError(runException.error);
+Toolbar.prototype.clearState = function () {
+    if (this.curButton == null)
+        return;
+    this.curButton.className="tbbtn";
+};
+
+Toolbar.prototype.enableButton = function (btn, enable) {
+	this.clearState();
+    var tb = document.getElementById("toolbar");
+	var o = tb.childNodes[btn.value];
+	if (enable)
+		delClass(o, "disabled");
+	else
+		addClass(o, "disabled");
+}
+
+Toolbar.prototype.isEnabled = function (btn) {
+	return !hasClass(btn, "disabled");
+}
+
+Toolbar.prototype.onMouseDown = function (o) {
+    this.clearState();
+	if (!this.isEnabled(o))
 		return;
-	}
-	treeView.show(descriptor);
-    reportsView.show(run.reports);
+    this.curButton = o;
+    this.curButton.className="tbbtn pressed";
+}
+
+Toolbar.prototype.onMouseUp = function (o) {
+    this.clearState();
+	if (!this.isEnabled(o))
+		return;
+    this.curButton = null;
+}
+
+Toolbar.prototype.onMouseEnter = function (o) {
+    this.clearState();
+	if (!this.isEnabled(o))
+		return;
+    this.curButton = o;
+}
+
+Toolbar.prototype.onMouseOut = function (o) {
+    this.clearState();
+	if (!this.isEnabled(o))
+		return;
+    this.curButton = null;
+}
+
+Toolbar.prototype.onClick = function (o) {
+	if (!this.isEnabled(o))
+		return;
+	eval('on' + o.id + 'Clicked()');
 }
 
 function onNewClicked()
@@ -181,7 +180,7 @@ var examples = {
     // Mouse with wheel, 3 buttons, and a wakeup feature
     3: "05 01 09 02 A1 01 05 09 19 01 29 03 15 00 25 01 95 03 75 01 81 02 95 01 75 05 81 03 05 01 09 01 A1 00 09 30 09 31 15 81 25 7F 75 08 95 02 81 06 C0 09 38 95 01 81 06 09 3c 15 00 25 01 75 01 95 01 b1 22 95 07 b1 01 C0",
     // Digital Thermometer
-    4: "0600FF0901A101050919012901150025019501750181029501750781010501094615BD257F67030003005500950175088100050809421500250F950175049100950175049101C0",
+    4: "0600FF0901A101050919012901150025019501750181029501750781010501094615BD257F67030003005500950175088100050809421500250F950175049100950175049101C0"
 };
 
 var curExample = 0;
@@ -241,6 +240,3 @@ function onAddReportClicked()
 function onDelReportClicked()
 {
 }
-
-populateToolbar();
-var descriptor = new HIDDescriptor();

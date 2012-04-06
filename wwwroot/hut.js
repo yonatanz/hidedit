@@ -17,7 +17,6 @@
 */
 
 var HIDUsageGenericDesktop = {
-    name: "HIDUsageGenericDesktop",
     Undefined:  { value: 0x00, name: "Undefined" },
     Pointer:    { value: 0x01, name: "Pointer" },
     Mouse:      { value: 0x02, name: "Mouse" },
@@ -68,6 +67,7 @@ var HIDUsageGenericDesktop = {
     SysColdRst: { value: 0x8E, name: "System Cold Restart" },
     SysWarmRst: { value: 0x8F, name: "System Warn Restart" },
     Reserved:   { value: [0xB8, 0xFFFF], name: "Reserved" },
+    name: "HIDUsageGenericDesktop"
 };
 /*
 1. Generic Desktop:
@@ -99,20 +99,19 @@ B8-FFFF	Reserved
 */
 
 var HIDUsageButton = {
-    name: "HIDUsageButton",
     NoButton:   { value: 0, name: "No Button" },
+    name: "HIDUsageButton"
 };
 for (var button = 1; button <= 65535; button++)
     HIDUsageButton["Button" + button] = {value: button, name: "Button " + button};
 
 var HIDUsageVendor = {
-    name: "HIDUsageVendor",
+    name: "HIDUsageVendor"
 };
 for (var vendor = 0; vendor <= 65535; vendor++)
     HIDUsageVendor["Vendor" + vendor] = {value: vendor, name: "Vendor " + vendor};
 
 var HIDUsageLED = {
-    name: "HIDUsageLED",
     Undefined: { value: 0x00, name: "Undefined" },
     NumLock: { value: 0x01, name: "Num Lock" },
     CapsLock: { value: 0x02, name: "Caps Lock" },
@@ -192,12 +191,12 @@ var HIDUsageLED = {
     SystemSuspend: { value: 0x4C, name: "System Suspend" },
     ExternalPower: { value: 0x4D, name: "External Power Connected" },
     Reserved: { value: [0x4E,0xFFFF], name: "Reserved" },
+    name: "HIDUsageLED"
 };
 
 
 
 var HIDUsagePage = {
-    name: "HIDUsagePage",
     Undefined:              { value: 0x00, usage: null, name: "Undefined" },
     GenericDesktop:         { value: 0x01, usage: HIDUsageGenericDesktop, name: "Generic Desktop" },
     Simulation:             { value: 0x02, usage: null, name: "Simulation" },
@@ -224,6 +223,7 @@ var HIDUsagePage = {
     PointOfSale:            { value: 0x8F, usage: null, name: "Reserved Point of Sale" },
     Camera:                 { value: 0x90, usage: null, name: "Camera" },
     VendorDefined:          { value: 0xFF, usage: HIDUsageVendor, name: "VendorDefined" },
+    name: "HIDUsagePage"
 };
 
 
