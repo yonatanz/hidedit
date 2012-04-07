@@ -214,8 +214,8 @@ function onSaveClicked()
     prompt("The current descriptor's hex dump is below. You may copy it if you want to use it elsewhere:",hex);
 }
 
-function onAddItemClicked()
-{
+function onAddItemClicked() {
+	addItemDlg.show(null);
 }
 
 function onDelItemClicked()
@@ -230,7 +230,11 @@ function onDelItemClicked()
 }
 
 function onEditItemClicked() {
-	editItemDlg.show();
+	if (treeView.selectedItem == null)
+		return;
+
+	var index = treeView.selectedItem.itemIndex;
+	editItemDlg.show(descriptor.items[treeView.selectedItem.itemIndex]);
 }
 
 function onAddReportClicked()
