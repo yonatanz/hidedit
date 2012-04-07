@@ -45,8 +45,8 @@ Dialog.prototype.initDialog = function (captionText, contentURL) {
 	btn.onmouseout = function () { delClass(this, "pressed"); };
 	this.caption.appendChild(btn);
 
-	//this.content = document.createElement('IFRAME');
-	this.content = document.createElement('DIV');
+	this.content = document.createElement('IFRAME');
+	//this.content = document.createElement('DIV');
 	this.content.className = "DialogContent";
 	this.content.src = contentURL;
 	this.item.appendChild(this.content);
