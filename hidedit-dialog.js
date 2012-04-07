@@ -46,7 +46,6 @@ Dialog.prototype.initDialog = function (captionText, contentURL) {
 	this.caption.appendChild(btn);
 
 	this.content = document.createElement('IFRAME');
-	//this.content = document.createElement('DIV');
 	this.content.className = "DialogContent";
 	this.content.src = contentURL;
 	this.item.appendChild(this.content);
