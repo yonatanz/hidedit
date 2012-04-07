@@ -72,7 +72,7 @@ Reports.prototype.show = function (reports) {
         td.textContent = "Bits";
         tr.appendChild(td);
         td = document.createElement('TH');
-        td.textContent = "Data";
+        td.textContent = "Attributes";
         tr.appendChild(td);
 
         table.appendChild(tr);
@@ -93,7 +93,7 @@ Reports.prototype.show = function (reports) {
             td.textContent = entry.bits;
             tr.appendChild(td);
             td = document.createElement('TD');
-            td.textContent = entry.data;
+            td.textContent = entry.attributesDesc;
             tr.appendChild(td);
 
             table.appendChild(tr);

@@ -17,16 +17,68 @@
 */
 
 var HIDReportType = {
-    Input:      { value: 0, name: "Input" },
-    Output:     { value: 1, name: "Output" },
-    Feature:    { value: 2, name: "Feature" },
-    name: "HIDReportType"
+	Input: { value: 0, name: "Input" },
+	Output: { value: 1, name: "Output" },
+	Feature: { value: 2, name: "Feature" },
+	name: "HIDReportType"
 };
 
-function HIDReportEntry(data, usage, bits) {
-    this.data = data;
+var HIDReportEntryAttribute = {
+	Data:        { bit: 0, value: 0, name: "Data" },
+	Constant:    { bit: 0, value: 1, name: "Constant" },
+	Array:       { bit: 1, value: 0, name: "Array" },
+	Variable:    { bit: 1, value: 1, name: "Variable" },
+	Absolute:    { bit: 2, value: 0, name: "Absolute" },
+	Relative:    { bit: 2, value: 1, name: "Relative" },
+	NoWrap:      { bit: 3, value: 0, name: "No Wrap" },
+	Wrap:        { bit: 3, value: 1, name: "Wrap" },
+	Linear:      { bit: 4, value: 0, name: "Linear" },
+	NonLinear:   { bit: 4, value: 1, name: "Non Linear" },
+	Preferred:   { bit: 5, value: 0, name: "Preferred State" },
+	NoPreferred: { bit: 5, value: 1, name: "No Preferred" },
+	NoNullPos:   { bit: 6, value: 0, name: "No Null position" },
+	NullState:   { bit: 6, value: 1, name: "Null state" },
+	NonVolatile: { bit: 7, value: 0, name: "Non Volatile" },
+	Volatile:    { bit: 7, value: 1, name: "Volatile" },
+	BitField:    { bit: 8, value: 0, name: "Bit Field" },
+	BufferBytes: { bit: 8, value: 1, name: "Buffered Bytes" },
+	name: "HIDReportEntryAttribute"
+};
+
+function HIDReportEntryAttributes(item) {
+	this.data = item.data;
+	this.attrs = Array();
+	for (var attrName in HIDReportEntryAttribute) {
+		var attr = HIDReportEntryAttribute[attrName];
+		if (typeof attr.bit !== 'number')
+			continue;
+		if (this.hasAttribute(attr))
+			this.attrs.push(attr);
+	}
+}
+
+HIDReportEntryAttributes.prototype.hasAttribute = function (attr) {
+	return (((this.data >> attr.bit) & 1) == attr.value);
+}
+
+HIDReportEntryAttributes.prototype.makeDescription = function () {
+	var desc = "";
+	for (var index in this.attrs) {
+		var attr = this.attrs[index];
+		if (attr.bit <= 2) {
+			if (desc.length > 0)
+				desc += ",";
+			desc += attr.name;
+		}
+	}
+	return desc;
+}
+
+function HIDReportEntry(attributes, usage, bits) {
     this.usage = usage;
     this.bits = bits;
+    this.attributes = attributes;
+    this.attributesDesc = attributes.makeDescription();
     // #### Todo: 
     /*
     this.logicalMin = ;
@@ -43,14 +95,16 @@ function HIDReport(type, id) {
     this.entries = new Array();
 }
 
-HIDReport.prototype.addData = function (data, state) {
-    var num;
-    for (num = 0; num < state.repCount; num++)
-    {
-        var usage = state.dequeueUsage();
-        var entry = new HIDReportEntry(data, usage, state.repSize);
-        this.entries.push(entry);
-    }
+HIDReport.prototype.addData = function (item, state) {
+	var attr = new HIDReportEntryAttributes(item);
+
+	var num;
+	for (num = 0; num < state.repCount; num++) {
+		var usage = state.dequeueUsage();
+		var entry = new HIDReportEntry(attr, usage, state.repSize);
+		this.entries.push(entry);
+	}
+	return attr.makeDescription();
 }
 
 HIDReport.prototype.makeDescription = function () {

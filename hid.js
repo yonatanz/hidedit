@@ -20,14 +20,6 @@
 var HID_LONG_ITEM_TAG = 15;
 var HID_LONG_ITEM_SIZE = 2;
 
-// HID Descriptor Item Type
-var HIDItemType = {
-    Main:       { value: 0, name: "Main" },
-    Global:     { value: 1, name: "Global" },
-    Local:      { value: 2, name: "Local" },
-    name: "HIDItemType"
-};
-
 // HID Descriptor Main Item Tag
 var HIDItemMainTag = {
     Input:          { value: 8, name: "Input", type: HIDReportType.Input },
@@ -68,6 +60,14 @@ var HIDItemLocalTag = {
     StringMaximum:      { value: 9, name: "String Maximum" },
     Delimiter:          { value: 10, name: "Delimiter" },
     name: "HIDItemLocalTag"
+};
+
+// HID Descriptor Item Type
+var HIDItemType = {
+   	Main:   { value: 0, name: "Main",   tags: HIDItemMainTag   },
+   	Global: { value: 1, name: "Global", tags: HIDItemGlobalTag },
+   	Local:  { value: 2, name: "Local",  tags: HIDItemLocalTag  },
+   	name: "HIDItemType"
 };
 
 // Collection Item Type

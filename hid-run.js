@@ -88,7 +88,7 @@ HIDRun.prototype.addToReport = function (item) {
 
     var report = this.findReportByTypeAndID(item.tag.type, this.useReportIDs ? this.state.repID : 0);
 
-    item.dataDesc = report.addData(item.data, this.state);
+    item.dataDesc = report.addData(item, this.state);
 
     // Revert back to collection's local state
     this.state.assignLocalState(this.collectionStack[this.collectionStack.length - 1].state);

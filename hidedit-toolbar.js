@@ -57,7 +57,7 @@ function Toolbar()
 Toolbar.prototype.clearState = function () {
     if (this.curButton == null)
         return;
-    this.curButton.className="tbbtn";
+    delClass(this.curButton, "pressed");
 };
 
 Toolbar.prototype.enableButton = function (btn, enable) {
@@ -75,11 +75,11 @@ Toolbar.prototype.isEnabled = function (btn) {
 }
 
 Toolbar.prototype.onMouseDown = function (o) {
-    this.clearState();
+	this.clearState();
 	if (!this.isEnabled(o))
 		return;
-    this.curButton = o;
-    this.curButton.className="tbbtn pressed";
+	this.curButton = o;
+	addClass(this.curButton, "pressed");
 }
 
 Toolbar.prototype.onMouseUp = function (o) {
@@ -170,7 +170,6 @@ END COLLECTION
 */
 
 var examples = {
-    length: 5,
     // Mouse with wheel and 8 buttons
     0: "05 01 09 02 A1 01 09 01 A1 00 05 09 19 01 29 08 15 00 25 01 75 01 95 08 81 02 05 01 09 30 09 31 09 38 09 B8 15 81 25 7F 75 08 95 04 81 06 C0 C0",
     // Mouse with wheel and 5 buttons
@@ -180,7 +179,11 @@ var examples = {
     // Mouse with wheel, 3 buttons, and a wakeup feature
     3: "05 01 09 02 A1 01 05 09 19 01 29 03 15 00 25 01 95 03 75 01 81 02 95 01 75 05 81 03 05 01 09 01 A1 00 09 30 09 31 15 81 25 7F 75 08 95 02 81 06 C0 09 38 95 01 81 06 09 3c 15 00 25 01 75 01 95 01 b1 22 95 07 b1 01 C0",
     // Digital Thermometer
-    4: "0600FF0901A101050919012901150025019501750181029501750781010501094615BD257F67030003005500950175088100050809421500250F950175049100950175049101C0"
+    4: "0600FF0901A101050919012901150025019501750181029501750781010501094615BD257F67030003005500950175088100050809421500250F950175049100950175049101C0",
+    // HIDMaker FS example
+    5: "0600FF0AF1FFA1011580257F950175080901810226820075090902810216008026FF7F950F7510090381021600F026FF0F9501750D0904810215F0250F7505090581021580257F9506750809069102953F0907810295017505810315C0253F950175070600FF09089102950175019103C0",
+    // HIDMacros example
+	6: "A1028502050815002501750195010917910295079103C0"
 };
 
 var curExample = 0;
@@ -204,7 +207,7 @@ function onLoadClicked()
     onDescriptorChanged();
 
     curExample++;
-    if (curExample >= examples.length)
+    if (typeof examples[curExample] !== 'string')
         curExample = 0;
 }
 
@@ -214,8 +217,8 @@ function onSaveClicked()
     prompt("The current descriptor's hex dump is below. You may copy it if you want to use it elsewhere:",hex);
 }
 
-function onAddItemClicked()
-{
+function onAddItemClicked() {
+	addItemDlg.show(null);
 }
 
 function onDelItemClicked()
@@ -229,8 +232,12 @@ function onDelItemClicked()
 	treeView.selectIndex(index);
 }
 
-function onEditItemClicked()
-{
+function onEditItemClicked() {
+	if (treeView.selectedItem == null)
+		return;
+
+	var index = treeView.selectedItem.itemIndex;
+	editItemDlg.show(descriptor.items[treeView.selectedItem.itemIndex]);
 }
 
 function onAddReportClicked()

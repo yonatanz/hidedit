@@ -66,37 +66,30 @@ var HIDUsageGenericDesktop = {
     SysMnuDown: { value: 0x8D, name: "System Menu Down" },
     SysColdRst: { value: 0x8E, name: "System Cold Restart" },
     SysWarmRst: { value: 0x8F, name: "System Warn Restart" },
-    Reserved:   { value: [0xB8, 0xFFFF], name: "Reserved" },
+    DPadUp:     { value: 0x90, name: "D-pad Up" },
+    DPadDown:   { value: 0x91, name: "D-pad Down" },
+    DPadRight:  { value: 0x92, name: "D-pad Right" },
+    DPadLeft:   { value: 0x93, name: "D-pad Left" },
+    SysDock:    { value: 0xA0, name: "System Dock" },
+    SysUndock:  { value: 0xA1, name: "System Undock" },
+    SysSetup:   { value: 0xA2, name: "System Setup" },
+    SysBreak:   { value: 0xA3, name: "System Break" },
+    SysDbgBreak:{ value: 0xA4, name: "System Debugger Break" },
+    AppBreak:   { value: 0xA5, name: "Application Break" },
+    AppDbgBreak:{ value: 0xA6, name: "Application Debugger Break" },
+    SysSpkMute: { value: 0xA7, name: "System Speaker Mute" },
+    SysHibernt: { value: 0xA8, name: "System Hibernate" },
+    DispInvert: { value: 0xB0, name: "System Display Invert" },
+    DispInt:    { value: 0xB1, name: "System Display Internal" },
+    DispExt:    { value: 0xB2, name: "System Display External" },
+    DispBoth:   { value: 0xB3, name: "System Display Both" },
+    DispDual:   { value: 0xB4, name: "System Display Dual" },
+    DispToggle: { value: 0xB5, name: "System Display Toggle Int/Ext" },
+    DispSwap:   { value: 0xB6, name: "System Display Swap Primary/Secondary" },
+    DispAutoScl:{ value: 0xB7, name: "System Display LCD Autoscale" },
+	Reserved:   { value: [0xB8, 0xFFFF], name: "Reserved" },
     name: "HIDUsageGenericDesktop"
 };
-/*
-1. Generic Desktop:
-Usage ID	Usage Name	Usage Type	Section	
-90	D-pad Up	OOC	4.7	
-91	D-pad Down	OOC	4.7	
-92	D-pad Right	OOC	4.7	
-93	D-pad Left	OOC	4.7	
-94-9F	Reserved	
-A0	System Dock	OSC	4.5.1	
-A1	System Undock	OSC	4.5.1	
-A2	System Setup	OSC	4.5.1	
-A3	System Break	OSC	4.9	
-A4	System Debugger Break	OSC	4.9	
-A5	Application Break	OSC	4.9	
-A6	Application Debugger Break	OSC	4.9	
-A7	System Speaker Mute	OSC	4.5.1	
-A8	System Hibernate	OSC	4.5.1	
-A9-AF	Reserved	
-B0	System Display Invert	OSC	4.10	
-B1	System Display Internal	OSC	4.10	
-B2	System Display External	OSC	4.10	
-B3	System Display Both	OSC	4.10	
-B4	System Display Dual	OSC	4.10	
-B5	System Display Toggle Int/Ext	OSC	4.10	
-B6	System Display Swap Primary/Secondary	OSC	4.10	
-B7	System Display LCD Autoscale	OSC	4.10	
-B8-FFFF	Reserved	
-*/
 
 var HIDUsageButton = {
     NoButton:   { value: 0, name: "No Button" },
@@ -109,7 +102,7 @@ var HIDUsageVendor = {
     name: "HIDUsageVendor"
 };
 for (var vendor = 0; vendor <= 65535; vendor++)
-    HIDUsageVendor["Vendor" + vendor] = {value: vendor, name: "Vendor " + vendor};
+	HIDUsageVendor["Vendor" + dec2hex(vendor, 4)] = { value: vendor, name: "Vendor " + dec2hex(vendor, 4) };
 
 var HIDUsageLED = {
     Undefined: { value: 0x00, name: "Undefined" },
@@ -190,16 +183,69 @@ var HIDUsageLED = {
     Generic: { value: 0x4B, name: "Generic Indicator" },
     SystemSuspend: { value: 0x4C, name: "System Suspend" },
     ExternalPower: { value: 0x4D, name: "External Power Connected" },
-    Reserved: { value: [0x4E,0xFFFF], name: "Reserved" },
     name: "HIDUsageLED"
 };
 
+var HIDUsageSimulation = {
+    Undefined: { value: 0x00, name: "Undefined" },
+    FlightSim: { value: 0x01, name: "Flight Simulation Device" },
+    AutomobileSim: { value: 0x02, name: "Automobile Simulation Device" },
+    TankSim: { value: 0x03, name: "Tank Simulation Device" },
+    SpaceshipSim: { value: 0x04, name: "Spaceship Simulation Device" },
+    SubmarineSim: { value: 0x05, name: "Submarine Simulation Device" },
+    SailingSim: { value: 0x06, name: "Sailing Simulation Device" },
+    MotorcycleSim: { value: 0x07, name: "Motorcycle Simulation Device" },
+    SportsSim: { value: 0x08, name: "Sports Simulation Device" },
+    AirplaneSim: { value: 0x09, name: "Airplane Simulation Device" },
+    HelicopterSim: { value: 0x0A, name: "Helicopter Simulation Device" },
+    MagicCarpetSim: { value: 0x0B, name: "Magic Carpet Simulation Device" },
+    BicycleSim: { value: 0x0C, name: "Bicycle Simulation Device" },
+    FlightCtrlStick: { value: 0x20, name: "Flight Control Stick" },
+    FlightStick: { value: 0x21, name: "Flight Stick" },
+    CyclicCtrl: { value: 0x22, name: "Cyclic Control" },
+    CyclicTrim: { value: 0x23, name: "Cyclic Trim" },
+    FlightYoke: { value: 0x24, name: "Flight Yoke" },
+    Aileron: { value: 0xB0, name: "Aileron" },
+    AileronTrim: { value: 0xB1, name: "Aileron Trim" },
+    AntiTorqueCtrl: { value: 0xB2, name: "Anti-Torque Control" },
+    AutoPiletEn: { value: 0xB3, name: "Autopilot Enable" },
+    ChaffRelease: { value: 0xB4, name: "Chaff Release" },
+    CollectiveCtrl: { value: 0xB5, name: "Collective Control" },
+    DiveBrake: { value: 0xB6, name: "Dive Brake" },
+    ElecCounterMeasures: { value: 0xB7, name: "Electronic Countermeasures" },
+    Elevator: { value: 0xB8, name: "Elevator" },
+    ElevatorTrim: { value: 0xB9, name: "Elevator Trim" },
+    Rudder: { value: 0xBA, name: "Rudder" },
+    Throttle: { value: 0xBB, name: "Throttle" },
+    FlightComm: { value: 0xBC, name: "Flight Communications" },
+    FlareRelease: { value: 0xBD, name: "Flare Release" },
+    LandingGear: { value: 0xBE, name: "Landing Gear" },
+    ToeBrake: { value: 0xBF, name: "Toe Brake" },
+    Trigger: { value: 0xC0, name: "Trigger" },
+    WeaponsArm: { value: 0xC1, name: "Weapons Arm" },
+    WeaponsSelect: { value: 0xC2, name: "Weapons Select" },
+    WingFlaps: { value: 0xC3, name: "Wing Flaps" },
+    Accelerator: { value: 0xC4, name: "Accelerator" },
+    Brake: { value: 0xC5, name: "Brake" },
+    Clutch: { value: 0xC6, name: "Clutch" },
+    Shifter: { value: 0xC7, name: "Shifter" },
+    Steering: { value: 0xC8, name: "Steering" },
+    TurretDirection: { value: 0xC9, name: "Turret Direction" },
+    BarrelElevation: { value: 0xCA, name: "Barrel Elevation" },
+    DivePlane: { value: 0xCB, name: "Dive Plane" },
+    Ballast: { value: 0xCC, name: "Ballast" },
+    BicycleCrank: { value: 0xCD, name: "Bicycle Crank" },
+    HandleBars: { value: 0xCE, name: "Handle Bars" },
+    FrontBrake: { value: 0xCF, name: "Front Brake" },
+    RearBrake: { value: 0xD0, name: "Rear Brake" },
+    name: "HIDUsageSimulation"
+};
 
 
 var HIDUsagePage = {
     Undefined:              { value: 0x00, usage: null, name: "Undefined" },
     GenericDesktop:         { value: 0x01, usage: HIDUsageGenericDesktop, name: "Generic Desktop" },
-    Simulation:             { value: 0x02, usage: null, name: "Simulation" },
+    Simulation:             { value: 0x02, usage: HIDUsageSimulation, name: "Simulation" },
     VirtualReality:         { value: 0x03, usage: null, name: "Virtual Reality" },
     Sport:                  { value: 0x04, usage: null, name: "Sport" },
     Game:                   { value: 0x05, usage: null, name: "Game" },
@@ -228,68 +274,6 @@ var HIDUsagePage = {
 
 
 /*
-
-
-
-2. Simulation Controls
-Usage ID	Usage Name	Usage Type	Section	
-00	Undefined	
-01	Flight Simulation Device	CA	5.2	
-02	Automobile Simulation Device	CA	5.3	
-03	Tank Simulation Device	CA	5.4	
-04	Spaceship Simulation Device	CA	5.2	
-05	Submarine Simulation Device	CA	5.5	
-06	Sailing Simulation Device	CA	5.5	
-07	Motorcycle Simulation Device	CA	5.6	
-08	Sports Simulation Device	CA	5.1	
-09	Airplane Simulation Device	CA	5.2	
-0A	Helicopter Simulation Device	CA	5.2	
-0B	Magic Carpet Simulation Device	CA	5.7	
-0C	Bicycle Simulation Device	CA	5.6	
-0D – 1F	Reserved	
-20	Flight Control Stick	CA	5.2	
-21	Flight Stick	CA	5.2	
-22	Cyclic Control	CP	5.2	
-23	Cyclic Trim	CP	5.2	
-24	Flight Yoke	CA	5.2	
-25	Track Control	CP	5.4	
-26 –AF	Reserved	
-B0	Aileron	DV	5.2	
-B1	Aileron Trim	DV	5.2	
-B2	Anti-Torque Control	DV	5.2	
-B3	Autopilot Enable	OOC	5.2	
-B4	Chaff Release	OSC	5.2	
-B5	Collective Control	DV	5.2	
-B6	Dive Brake	DV	5.2	
-B7	Electronic Countermeasures	OOC	5.2	
-B8	Elevator	DV	5.2	
-B9	Elevator Trim	DV	5.2	
-BA	Rudder	DV	5.2	
-BB	Throttle	DV	5.2	
-BC	Flight Communications	OOC	5.2	
-BD	Flare Release	OSC	5.2	
-BE	Landing Gear	OOC	5.2	
-BF	Toe Brake	DV	5.2	
-C0	Trigger	MC	5.2	
-C1	Weapons Arm	OOC	5.2	
-C2	Weapons Select	OSC	5.2	
-C3	Wing Flaps	DV	5.2	
-C4	Accelerator	DV	5.3	
-C5	Brake	DV	5.3	
-C6	Clutch	DV	5.3	
-C7	Shifter	DV	5.3	
-C8	Steering	DV	5.3	
-C9	Turret Direction	DV	5.4	
-CA	Barrel Elevation	DV	5.4	
-CB	Dive Plane	DV	5.5	
-CC	Ballast	DV	5.5	
-CD	Bicycle Crank	DV	5.6	
-CE	Handle Bars	DV	5.6	
-CF	Front Brake	DV	5.6	
-D0	Rear Brake	DV	5.6	
-D1-FFFF	Reserved	
-
-
 4. Sports Controls
 Usage ID	Usage Name	Usage Type	Section	
 00	Unidentified	
