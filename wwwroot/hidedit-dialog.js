@@ -70,6 +70,8 @@ Dialog.prototype.close = function () {
 
 EditItemDialogUI = function () {
 	this.dlg = null;
+	this.itemType = null;
+	this.selectedItemTypeData = null;
 }
 
 EditItemDialogUI.prototype.setDlg = function (dlg) {
@@ -78,10 +80,12 @@ EditItemDialogUI.prototype.setDlg = function (dlg) {
 
 EditItemDialogUI.prototype.initUI = function () {
 	// "Item" drop-down list
-	var select = this.dlg.content.contentDocument.getElementById("ItemType");
-	// Clear the list
-	while (select.childNodes.length > 0)
-		select.removeChild(select.childNodes[0]);
+	this.itemType = this.dlg.content.contentDocument.getElementById("ItemType");
+	this.itemType.dlgui = this;
+	this.itemType.onchange = function () { this.dlgui.onItemTypeChange(this) };
+	// Clear the item type list
+	while (this.itemType.childNodes.length > 0)
+		this.itemType.removeChild(this.itemType.childNodes[0]);
 	// Fill the list with all known HIDItem tags
 	for (var typeName in HIDItemType) {
 		var type = HIDItemType[typeName];
@@ -92,11 +96,143 @@ EditItemDialogUI.prototype.initUI = function () {
 			var tag = type.tags[tagName];
 			if (typeof tag.value !== 'number')
 				continue;
-			var option = addItemDlg.content.contentDocument.createElement("OPTION");
+			var option = this.dlg.content.contentDocument.createElement("OPTION");
 			option.textContent = tag.name;
+			option.tag = tag;
 			option.value = type.tags.name + "." + tagName;
-			select.appendChild(option);
+			this.itemType.appendChild(option);
 		}
+	}
+
+	// Input/Output/Feature radio buttons
+	var div = this.dlg.content.contentDocument.getElementById("ItemTypeDataReport");
+	while (div.childNodes.length > 0)
+		div.removeChild(div.childNodes[0]);
+	// Fill the div with all known report attributes
+	for (var attrName in HIDReportEntryAttribute) {
+		var attr = HIDReportEntryAttribute[attrName];
+		if (typeof attr !== 'object')
+			continue;
+
+		var radio = this.dlg.content.contentDocument.createElement("INPUT");
+		radio.type = "radio";
+		radio.name = "attr" + attr.bit;
+		radio.value = attr.value;
+		radio.id = HIDReportEntryAttribute.name + "." + attr.name;
+		div.appendChild(radio);
+
+		var label = document.createElement('LABEL');
+		label.htmlFor = radio.id;
+		label.textContent = attr.name;
+		div.appendChild(label);
+
+		if (attr.value == 1) {
+			var br = this.dlg.content.contentDocument.createElement("BR");
+			div.appendChild(br);
+		}
+	}
+
+	// Collection radio buttons
+	var div = this.dlg.content.contentDocument.getElementById("ItemTypeDataCollection");
+	while (div.childNodes.length > 0)
+		div.removeChild(div.childNodes[0]);
+	// Fill the div with all known collection types
+	for (var typeName in HIDItemCollectionType) {
+		var type = HIDItemCollectionType[typeName];
+		if (typeof type.value !== 'number')
+			continue;
+
+		var radio = this.dlg.content.contentDocument.createElement("INPUT");
+		radio.type = "radio";
+		radio.name = "collectionType";
+		radio.value = type.value;
+		radio.id = HIDItemCollectionType.name + "." + type.name;
+		div.appendChild(radio);
+
+		var label = document.createElement('LABEL');
+		label.htmlFor = radio.id;
+		label.textContent = type.name;
+		div.appendChild(label);
+
+		var br = this.dlg.content.contentDocument.createElement("BR");
+		div.appendChild(br);
+	}
+	var radio = this.dlg.content.contentDocument.createElement("INPUT");
+	radio.type = "radio";
+	radio.name = "collectionType";
+	radio.value = HIDItemCollectionType.VendorDefined.value[0];
+	radio.id = HIDItemCollectionType.name + "." + HIDItemCollectionType.VendorDefined.name;
+	div.appendChild(radio);
+
+	var label = document.createElement('LABEL');
+	label.htmlFor = radio.id;
+	label.textContent = HIDItemCollectionType.VendorDefined.name + ": ";
+	div.appendChild(label);
+
+	var editbox = this.dlg.content.contentDocument.createElement("INPUT");
+	editbox.type = "TEXT";
+	editbox.name = "collectionTypeVendor";
+	editbox.id = "collectionTypeVendor";
+	div.appendChild(editbox);
+
+	var br = this.dlg.content.contentDocument.createElement("BR");
+	div.appendChild(br);
+
+}
+
+EditItemDialogUI.prototype.getItemDataUIForTag = function (tag) {
+	var itemTypeDataID = "None";
+	switch (tag) {
+		case HIDItemGlobalTag.UsagePage:
+			itemTypeDataID = "UsagePage";
+			break;
+		case HIDItemLocalTag.Usage:
+		case HIDItemLocalTag.UsageMinimum:
+		case HIDItemLocalTag.UsageMaximum:
+			itemTypeDataID = "Usage";
+			break;
+		case HIDItemGlobalTag.PhysicalMinimum:
+		case HIDItemGlobalTag.PhysicalMaximum:
+		case HIDItemGlobalTag.LogicalMinimum:
+		case HIDItemGlobalTag.LogicalMaximum:
+		case HIDItemGlobalTag.ReportSize:
+		case HIDItemGlobalTag.ReportID:
+		case HIDItemGlobalTag.ReportCount:
+		case HIDItemGlobalTag.UnitExponent:
+			itemTypeDataID = "Num";
+			break;
+		case HIDItemGlobalTag.Unit:
+			itemTypeDataID = "Unit";
+			break;
+		case HIDItemMainTag.Input:
+		case HIDItemMainTag.Output:
+		case HIDItemMainTag.Feature:
+			itemTypeDataID = "Report";
+			break;
+		case HIDItemMainTag.Collection:
+			itemTypeDataID = "Collection";
+			break;
+		case HIDItemMainTag.EndCollection:
+			itemTypeDataID = "None";
+			break;
+		default:
+			throw "Unsupported item tag in dialog: " + tag.name;
+	}
+
+	return this.dlg.content.contentDocument.getElementById("ItemTypeData" + itemTypeDataID);
+}
+
+EditItemDialogUI.prototype.onItemTypeChange = function () {
+	var selectedTag = this.itemType.options[this.itemType.selectedIndex].tag;
+	var newItemTypeData = this.getItemDataUIForTag(selectedTag);
+
+	if (this.selectedItemTypeData != newItemTypeData) {
+		if (this.selectedItemTypeData != null) {
+			addClass(this.selectedItemTypeData, "hidden");
+			this.selectedItemTypeData = null;
+		}
+		this.selectedItemTypeData = newItemTypeData;
+		delClass(this.selectedItemTypeData, "hidden");
 	}
 }
 
@@ -105,12 +241,49 @@ EditItemDialogUI.prototype.loadData = function (item) {
 		return;
 
 	// "Item" drop-down list
-	var select = this.dlg.content.contentDocument.getElementById("ItemType");
-	for (var index = 0; index < select.options.length; index++) {
-		var tag = eval(select.options[index].value);
+	var selectedTag = null;
+	for (var index = 0; index < this.itemType.options.length; index++) {
+		var tag = eval(this.itemType.options[index].value);
 		if (tag == item.tag) {
-			select.selectedIndex = index;
+			this.itemType.selectedIndex = index;
+			this.itemType.onchange();
+			selectedTag = tag;
 			break;
 		}
+	}
+
+	var itemTypeData = this.getItemDataUIForTag(selectedTag);
+	switch (selectedTag) {
+		case HIDItemMainTag.Input:
+		case HIDItemMainTag.Output:
+		case HIDItemMainTag.Feature:
+			var attrs = new HIDReportEntryAttributes(item.data);
+			for (var attrIndex = 0; attrIndex < attrs.attrs.length; attrIndex++) {
+				var attr = attrs.attrs[attrIndex];
+				this.dlg.content.contentDocument.getElementById(HIDReportEntryAttribute.name + "." + attr.name).checked = true;
+			}
+			break;
+		case HIDItemMainTag.Collection:
+			var collType = parseEnum(item.data, HIDItemCollectionType);
+			this.dlg.content.contentDocument.getElementById(HIDItemCollectionType.name + "." + collType.name).checked = true;
+			if (collType == HIDItemCollectionType.VendorDefined)
+				this.dlg.content.contentDocument.getElementById("collectionTypeVendor").value = item.data;
+			break;
+		case HIDItemGlobalTag.UsagePage:
+		case HIDItemLocalTag.Usage:
+		case HIDItemLocalTag.UsageMinimum:
+		case HIDItemLocalTag.UsageMaximum:
+		case HIDItemGlobalTag.PhysicalMinimum:
+		case HIDItemGlobalTag.PhysicalMaximum:
+		case HIDItemGlobalTag.LogicalMinimum:
+		case HIDItemGlobalTag.LogicalMaximum:
+		case HIDItemGlobalTag.ReportSize:
+		case HIDItemGlobalTag.ReportID:
+		case HIDItemGlobalTag.ReportCount:
+		case HIDItemGlobalTag.UnitExponent:
+		case HIDItemGlobalTag.Unit:
+		case HIDItemMainTag.EndCollection:
+		default:
+			throw "Unsupported item tag in dialog: " + selectedTag.name;
 	}
 }

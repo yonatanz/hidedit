@@ -132,6 +132,10 @@ DIV.DialogParent
 {
 	display: none;
 }
+.visible
+{
+	display: inline-block;
+}
 DIV.Dialog
 {
 	display: inline-block;
@@ -175,4 +179,7 @@ DIV.Dialog
     background-position: -256px 0px;
     display: inline-block;
     float: right;
+}
+DIV.ItemTypeData
+{
 }

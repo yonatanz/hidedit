@@ -155,14 +155,22 @@ HIDRun.prototype.runItem = function (item) {
             this.state.usageMax = item.data;
             item.dataDesc = this.state.usageMax;
             break;
+        case HIDItemGlobalTag.PhysicalMinimum:
+           	this.state.physicalMin = item.data;
+           	item.dataDesc = this.state.physicalMin;
+           	break;
+        case HIDItemGlobalTag.PhysicalMaximum:
+           	this.state.physicalMax = item.data;
+           	item.dataDesc = this.state.physicalMax;
+           	break;
         case HIDItemGlobalTag.LogicalMinimum:
-            this.state.logicalMin = item.data;
-            item.dataDesc = this.state.logicalMin;
-            break;
+           	this.state.logicalMin = item.data;
+           	item.dataDesc = this.state.logicalMin;
+           	break;
         case HIDItemGlobalTag.LogicalMaximum:
-            this.state.logicalMax = item.data;
-            item.dataDesc = this.state.logicalMax;
-            break;
+           	this.state.logicalMax = item.data;
+           	item.dataDesc = this.state.logicalMax;
+           	break;
         case HIDItemGlobalTag.ReportSize:
             this.state.repSize = item.data;
             item.dataDesc = this.state.repSize;
