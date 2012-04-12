@@ -135,84 +135,93 @@ HIDRun.prototype.parseUnit = function (data) {
 }
 
 HIDRun.prototype.runItem = function (item) {
-    switch (item.tag) {
-        case HIDItemGlobalTag.UsagePage:
-            this.state.usagePage = parseEnum(item.data, HIDUsagePage);
-            item.dataDesc = this.state.usagePage.name;
-            break;
-        case HIDItemLocalTag.Usage:
-            if (this.state.usagePage.usage == null)
-                throw "Usage page " + this.state.usagePage.name + " does not contain usages";
+	switch (item.tag) {
+		case HIDItemGlobalTag.UsagePage:
+			this.state.usagePage = parseEnum(item.data, HIDUsagePage);
+			item.dataDesc = this.state.usagePage.name;
+			break;
+		case HIDItemLocalTag.Usage:
+			if (this.state.usagePage.usage == null)
+				throw "Usage page " + this.state.usagePage.name + " does not contain usages";
+			item.usagePage = this.state.usagePage;
 
-            this.state.usage = parseEnum(item.data, this.state.usagePage.usage);
-            item.dataDesc = this.state.usage.name;
-            break;
-        case HIDItemLocalTag.UsageMinimum:
-            this.state.usageMin = item.data;
-            item.dataDesc = this.state.usageMin;
-            break;
-        case HIDItemLocalTag.UsageMaximum:
-            this.state.usageMax = item.data;
-            item.dataDesc = this.state.usageMax;
-            break;
-        case HIDItemGlobalTag.PhysicalMinimum:
-           	this.state.physicalMin = item.data;
-           	item.dataDesc = this.state.physicalMin;
-           	break;
-        case HIDItemGlobalTag.PhysicalMaximum:
-           	this.state.physicalMax = item.data;
-           	item.dataDesc = this.state.physicalMax;
-           	break;
-        case HIDItemGlobalTag.LogicalMinimum:
-           	this.state.logicalMin = item.data;
-           	item.dataDesc = this.state.logicalMin;
-           	break;
-        case HIDItemGlobalTag.LogicalMaximum:
-           	this.state.logicalMax = item.data;
-           	item.dataDesc = this.state.logicalMax;
-           	break;
-        case HIDItemGlobalTag.ReportSize:
-            this.state.repSize = item.data;
-            item.dataDesc = this.state.repSize;
-            break;
-        case HIDItemGlobalTag.ReportID:
-            this.state.repID = item.data;
-            item.dataDesc = this.state.repID;
-            break;
-        case HIDItemGlobalTag.ReportCount:
-            this.state.repCount = item.data;
-            item.dataDesc = this.state.repCount;
-            break;
-        case HIDItemGlobalTag.Unit:
-            var unitObj = this.parseUnit(item.data);
-            this.state.unit = unitObj;
-            item.dataDesc = unitObj.makeDescription();
-            break;
-        case HIDItemGlobalTag.UnitExponent:
-            this.state.unitExp = item.data;
-            item.dataDesc = this.state.unitExp;
-            break;
-        case HIDItemMainTag.Input:
-        case HIDItemMainTag.Output:
-        case HIDItemMainTag.Feature:
-            this.addToReport(item);
-            break;
-        case HIDItemMainTag.Collection:
-            var usage = this.state.dequeueUsage();
-            var collType = parseEnum(item.data, HIDItemCollectionType);
-            this.collectionStack.push(new HIDCollection(collType, this.state.clone()));
-            item.dataDesc = collType.name;
-            break;
-        case HIDItemMainTag.EndCollection:
-            if (this.collectionStack.length < 1)
-                throw "EndCollection without collection";
-            var coll = this.collectionStack.pop();
-            item.dataDesc = coll.type.name;
-            break;
-        default:
-            throw "Unsupported item tag during run: " + item.tag.name;
-    }
-    this.state.handleNewState();
+			this.state.usage = parseEnum(item.data, this.state.usagePage.usage);
+			item.dataDesc = this.state.usage.name;
+			break;
+		case HIDItemLocalTag.UsageMinimum:
+			if (this.state.usagePage.usage == null)
+				throw "Usage page " + this.state.usagePage.name + " does not contain usages";
+			item.usagePage = this.state.usagePage;
+
+			this.state.usageMin = parseEnum(item.data, this.state.usagePage.usage);
+			item.dataDesc = this.state.usageMin.name;
+			break;
+		case HIDItemLocalTag.UsageMaximum:
+			if (this.state.usagePage.usage == null)
+				throw "Usage page " + this.state.usagePage.name + " does not contain usages";
+			item.usagePage = this.state.usagePage;
+
+			this.state.usageMax = parseEnum(item.data, this.state.usagePage.usage);
+			item.dataDesc = this.state.usageMax.name;
+			break;
+		case HIDItemGlobalTag.PhysicalMinimum:
+			this.state.physicalMin = item.data;
+			item.dataDesc = this.state.physicalMin;
+			break;
+		case HIDItemGlobalTag.PhysicalMaximum:
+			this.state.physicalMax = item.data;
+			item.dataDesc = this.state.physicalMax;
+			break;
+		case HIDItemGlobalTag.LogicalMinimum:
+			this.state.logicalMin = item.data;
+			item.dataDesc = this.state.logicalMin;
+			break;
+		case HIDItemGlobalTag.LogicalMaximum:
+			this.state.logicalMax = item.data;
+			item.dataDesc = this.state.logicalMax;
+			break;
+		case HIDItemGlobalTag.ReportSize:
+			this.state.repSize = item.data;
+			item.dataDesc = this.state.repSize;
+			break;
+		case HIDItemGlobalTag.ReportID:
+			this.state.repID = item.data;
+			item.dataDesc = this.state.repID;
+			break;
+		case HIDItemGlobalTag.ReportCount:
+			this.state.repCount = item.data;
+			item.dataDesc = this.state.repCount;
+			break;
+		case HIDItemGlobalTag.Unit:
+			var unitObj = this.parseUnit(item.data);
+			this.state.unit = unitObj;
+			item.dataDesc = unitObj.makeDescription();
+			break;
+		case HIDItemGlobalTag.UnitExponent:
+			this.state.unitExp = item.data;
+			item.dataDesc = this.state.unitExp;
+			break;
+		case HIDItemMainTag.Input:
+		case HIDItemMainTag.Output:
+		case HIDItemMainTag.Feature:
+			this.addToReport(item);
+			break;
+		case HIDItemMainTag.Collection:
+			var usage = this.state.dequeueUsage();
+			var collType = parseEnum(item.data, HIDItemCollectionType);
+			this.collectionStack.push(new HIDCollection(collType, this.state.clone()));
+			item.dataDesc = collType.name;
+			break;
+		case HIDItemMainTag.EndCollection:
+			if (this.collectionStack.length < 1)
+				throw "EndCollection without collection";
+			var coll = this.collectionStack.pop();
+			item.dataDesc = coll.type.name;
+			break;
+		default:
+			throw "Unsupported item tag during run: " + item.tag.name;
+	}
+	this.state.handleNewState();
 }
 
 HIDRun.prototype.checkReportState = function () {

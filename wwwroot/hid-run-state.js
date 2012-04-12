@@ -66,7 +66,7 @@ HIDRunState.prototype.handleNewState = function () {
         if (this.usagePage.usage == null)
             throw "Usage page " + this.usagePage.name + " does not contain usages";
         var num;
-        for (num = this.usageMin; num <= this.usageMax; num++) {
+        for (num = this.usageMin.value; num <= this.usageMax.value; num++) {
             var usage = parseEnum(num, this.usagePage.usage);
             this.usageQueue.push(usage);
         }
