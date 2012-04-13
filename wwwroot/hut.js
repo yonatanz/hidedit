@@ -16,6 +16,8 @@
     along with hidedit.  If not, see http://www.gnu.org/licenses/
 */
 
+var NameReserved = "Reserved";
+
 var HIDUsageGenericDesktop = {
     Undefined:  { value: 0x00, name: "Undefined" },
     Pointer:    { value: 0x01, name: "Pointer" },
@@ -87,7 +89,7 @@ var HIDUsageGenericDesktop = {
     DispToggle: { value: 0xB5, name: "System Display Toggle Int/Ext" },
     DispSwap:   { value: 0xB6, name: "System Display Swap Primary/Secondary" },
     DispAutoScl:{ value: 0xB7, name: "System Display LCD Autoscale" },
-	Reserved:   { value: [0xB8, 0xFFFF], name: "Reserved" },
+	Reserved:   { value: [0xB8, 0xFFFF], name: NameReserved },
     name: "HIDUsageGenericDesktop"
 };
 
@@ -268,7 +270,7 @@ var HIDUsagePage = {
     MagStripeReader:        { value: 0x8E, usage: null, name: "Magnetic Stripe Reading" },
     PointOfSale:            { value: 0x8F, usage: null, name: "Reserved Point of Sale" },
     Camera:                 { value: 0x90, usage: null, name: "Camera" },
-    VendorDefined:          { value: 0xFF, usage: HIDUsageVendor, name: "VendorDefined" },
+    VendorDefined:          { value: 0xFF, usage: HIDUsageVendor, name: "Vendor Defined" },
     name: "HIDUsagePage"
 };
 

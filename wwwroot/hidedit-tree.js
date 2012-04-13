@@ -22,6 +22,8 @@ function Tree(elemID) {
 
     this.selectedItem = null;
     this.errorItem = null;
+    this.savedSelectionIndex = null;
+
     this.clear();
 }
 
@@ -39,10 +41,11 @@ Tree.prototype.show = function (descriptor) {
 	for (var index in descriptor.items) {
 		var item = descriptor.items[index];
 
-		var itemElem = document.createElement('DIV');
+		var itemElem = document.createElement('BUTTON');
 		item.elem = itemElem;
 		itemElem.className = "treeitem";
-		itemElem.onclick = function () { treeView.selectItem(this); };
+		itemElem.onclick = function () { treeView.toggleSelectItem(this); };
+		itemElem.ondblclick = function () { onEditItemClicked(); };
 		itemElem.itemIndex = index;
 
 		var indentElem = null;
@@ -75,10 +78,10 @@ Tree.prototype.selectIndex = function (index) {
 	if (index >= this.root.childNodes.length)
 		index = this.root.childNodes.length - 1;
 
-	this.selectItem(this.root.childNodes[index]);
+	this.toggleSelectItem(this.root.childNodes[index]);
 }
 
-Tree.prototype.selectItem = function (treeItem) {
+Tree.prototype.toggleSelectItem = function (treeItem) {
 	var oldSelected = this.selectedItem;
 	if (this.selectedItem != null) {
 		delClass(this.selectedItem, "selectedItem");
@@ -104,3 +107,16 @@ Tree.prototype.setErrorItem = function (treeItem) {
 		addClass(this.errorItem, "errorItem");
 	}
 };
+
+Tree.prototype.saveSelectionIndex = function () {
+	if (treeView.selectedItem == null)
+		this.savedSelectionIndex = null;
+	else
+		this.savedSelectionIndex = treeView.selectedItem.itemIndex;
+};
+
+Tree.prototype.restoreSelectionIndex = function () {
+	if (this.savedSelectionIndex != null)
+		treeView.selectIndex(this.savedSelectionIndex);
+};
+

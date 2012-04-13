@@ -86,7 +86,7 @@ HIDRun.prototype.findReportByTypeAndID = function (type, id) {
 HIDRun.prototype.addToReport = function (item) {
     this.checkReportState();
 
-    var report = this.findReportByTypeAndID(item.tag.type, this.useReportIDs ? this.state.repID : 0);
+    var report = this.findReportByTypeAndID(item.tag.reportType, this.useReportIDs ? this.state.repID : 0);
 
     item.dataDesc = report.addData(item, this.state);
 

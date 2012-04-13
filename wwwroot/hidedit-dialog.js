@@ -39,7 +39,7 @@ Dialog.prototype.initDialog = function (captionText, contentURL) {
 	var btn = document.createElement('DIV');
 	btn.className = "DialogCaptionButton";
 	btn.dlg = this;
-	btn.onclick = function () { this.dlg.close() };
+	btn.onclick = function () { this.dlg.ui.onCancel() };
 	btn.onmousedown = function () { addClass(this, "pressed"); };
 	btn.onmouseup = function () { delClass(this, "pressed"); };
 	btn.onmouseout = function () { delClass(this, "pressed"); };
@@ -65,14 +65,17 @@ Dialog.prototype.show = function (data) {
 	delClass(this.dlgParent, "hidden");
 };
 
-Dialog.prototype.close = function () {
+Dialog.prototype.close = function (bSaveData) {
+	if (bSaveData)
+		this.ui.saveData();
 	addClass(this.dlgParent, "hidden");
 };
 
-EditItemDialogUI = function () {
+EditItemDialogUI = function (onOK) {
 	this.dlg = null;
 	this.itemType = null;
 	this.selectedItemTypeData = null;
+	this.onOK = onOK;
 }
 
 EditItemDialogUI.prototype.setDlg = function (dlg) {
@@ -80,6 +83,13 @@ EditItemDialogUI.prototype.setDlg = function (dlg) {
 }
 
 EditItemDialogUI.prototype.initUI = function () {
+	var btn = this.dlg.content.contentDocument.getElementById("btnOK");
+	btn.dlgui = this;
+	btn.onclick = function () { this.dlgui.onOK() };
+	var btn = this.dlg.content.contentDocument.getElementById("btnCancel");
+	btn.dlgui = this;
+	btn.onclick = function () { this.dlgui.onCancel() };
+
 	// "Item" drop-down list
 	this.itemType = this.dlg.content.contentDocument.getElementById("ItemType");
 	this.itemType.dlgui = this;
@@ -93,6 +103,10 @@ EditItemDialogUI.prototype.initUI = function () {
 		if (typeof type.tags !== 'object')
 			continue;
 
+		var group = this.dlg.content.contentDocument.createElement("OPTGROUP");
+		group.label = type.name;
+		group.type = type;
+
 		for (var tagName in type.tags) {
 			var tag = type.tags[tagName];
 			if (typeof tag.value !== 'number')
@@ -101,78 +115,29 @@ EditItemDialogUI.prototype.initUI = function () {
 			option.textContent = tag.name;
 			option.tag = tag;
 			option.value = type.tags.name + "." + tagName;
-			this.itemType.appendChild(option);
+			group.appendChild(option);
 		}
+
+		this.itemType.appendChild(group);
 	}
 }
 
-EditItemDialogUI.prototype.getItemDataUIForTag = function (tag) {
-	var itemTypeDataID = "None";
-	switch (tag) {
-		case HIDItemGlobalTag.UsagePage:
-		case HIDItemLocalTag.Usage:
-		case HIDItemLocalTag.UsageMinimum:
-		case HIDItemLocalTag.UsageMaximum:
-			itemTypeDataID = "Select";
-			break;
-		case HIDItemGlobalTag.PhysicalMinimum:
-		case HIDItemGlobalTag.PhysicalMaximum:
-		case HIDItemGlobalTag.LogicalMinimum:
-		case HIDItemGlobalTag.LogicalMaximum:
-		case HIDItemGlobalTag.ReportSize:
-		case HIDItemGlobalTag.ReportID:
-		case HIDItemGlobalTag.ReportCount:
-		case HIDItemGlobalTag.UnitExponent:
-		case HIDItemLocalTag.DesignatorIndex:
-		case HIDItemLocalTag.DesignatorMinimum:
-		case HIDItemLocalTag.DesignatorMaximum:
-		case HIDItemLocalTag.StringIndex:
-		case HIDItemLocalTag.StringMinimum:
-		case HIDItemLocalTag.StringMaximum:
-		case HIDItemLocalTag.Delimiter:
-			itemTypeDataID = "Num";
-			break;
-		case HIDItemGlobalTag.Unit:
-			itemTypeDataID = "Unit";
-			break;
-		case HIDItemMainTag.Input:
-		case HIDItemMainTag.Output:
-		case HIDItemMainTag.Feature:
-			itemTypeDataID = "Report";
-			break;
-		case HIDItemMainTag.Collection:
-			itemTypeDataID = "Collection";
-			break;
-		case HIDItemMainTag.EndCollection:
-		case HIDItemGlobalTag.Push:
-		case HIDItemGlobalTag.Pop:
-			itemTypeDataID = "None";
-			break;
-		default:
-			throw "Unsupported item tag in dialog: " + tag.name;
-	}
-
-	return this.dlg.content.contentDocument.getElementById("ItemTypeData" + itemTypeDataID);
+EditItemDialogUI.prototype.onCancel = function () {
+	this.dlg.close(false);
 }
 
 EditItemDialogUI.prototype.onItemTypeChange = function () {
+	var div = this.dlg.content.contentDocument.getElementById("ItemTypeData");
+	// Empty the contents DIV
+	while (div.childNodes.length > 0)
+		div.removeChild(div.childNodes[0]);
+
 	var selectedTag = this.itemType.options[this.itemType.selectedIndex].tag;
-	var newItemTypeData = this.getItemDataUIForTag(selectedTag);
-
-	if (this.selectedItemTypeData != newItemTypeData) {
-		if (this.selectedItemTypeData != null) {
-			addClass(this.selectedItemTypeData, "hidden");
-			this.selectedItemTypeData = null;
-		}
-		this.selectedItemTypeData = newItemTypeData;
-		delClass(this.selectedItemTypeData, "hidden");
-	}
-
 	switch (selectedTag) {
 		case HIDItemMainTag.Input:
 		case HIDItemMainTag.Output:
 		case HIDItemMainTag.Feature:
-			this.initUIReport();
+			this.initUIReport(div);
 			var attrs = new HIDReportEntryAttributes(this.data.data);
 			for (var attrIndex = 0; attrIndex < attrs.attrs.length; attrIndex++) {
 				var attr = attrs.attrs[attrIndex];
@@ -180,19 +145,18 @@ EditItemDialogUI.prototype.onItemTypeChange = function () {
 			}
 			break;
 		case HIDItemMainTag.Collection:
-			this.initUICollection();
-			var collType = parseEnum(this.data.data, HIDItemCollectionType);
-			this.dlg.content.contentDocument.getElementById(HIDItemCollectionType.name + "." + collType.name).checked = true;
-			if (collType == HIDItemCollectionType.VendorDefined)
-				this.dlg.content.contentDocument.getElementById("collectionTypeVendor").value = this.data.data;
+			this.initUICollection(div);
 			break;
 		case HIDItemGlobalTag.UsagePage:
-			this.initUISelect(HIDUsagePage, this.data.data, "Usage page: ");
+			this.initUISelect(div, HIDUsagePage, this.data.data, "Usage page: ", null);
 			break;
 		case HIDItemLocalTag.Usage:
 		case HIDItemLocalTag.UsageMinimum:
 		case HIDItemLocalTag.UsageMaximum:
-			this.initUISelect(this.data.usagePage.usage, this.data.data, "Usage: ");
+			if (this.data.usagePage != null)
+				this.initUISelect(div, this.data.usagePage.usage, this.data.data, "Usage: ", "From Usage-Page: " + this.data.usagePage.name);
+			else
+				this.initUINone(div, "No usage page selected");
 			break;
 		case HIDItemGlobalTag.PhysicalMinimum:
 		case HIDItemGlobalTag.PhysicalMaximum:
@@ -209,20 +173,26 @@ EditItemDialogUI.prototype.onItemTypeChange = function () {
 		case HIDItemLocalTag.StringMinimum:
 		case HIDItemLocalTag.StringMaximum:
 		case HIDItemLocalTag.Delimiter:
-			this.initUINum(this.data.data, selectedTag.name + ": ");
+			this.initUINum(div, selectedTag.name + ": ");
 			break;
 		case HIDItemGlobalTag.Unit:
 			// #### todo
 			break;
+		default:
+			this.initUINone(div, "This item type has no properties");
 	}
-
 }
 
-EditItemDialogUI.prototype.initUINum = function (value, labelText) {
-	var div = this.dlg.content.contentDocument.getElementById("ItemTypeDataNum");
-	while (div.childNodes.length > 0)
-		div.removeChild(div.childNodes[0]);
+EditItemDialogUI.prototype.initUINone = function (div, commentText) {
+	if (commentText != null) {
+		var comment = this.dlg.content.contentDocument.createElement("TextNode");
+		comment.textContent = commentText;
+		comment.className = "Comment";
+		div.appendChild(comment);
+	}
+}
 
+EditItemDialogUI.prototype.initUINum = function (div, labelText) {
 	var label = this.dlg.content.contentDocument.createElement("LABEL");
 	label.textContent = labelText;
 	label.htmlFor = "typeDataNum";
@@ -234,15 +204,10 @@ EditItemDialogUI.prototype.initUINum = function (value, labelText) {
 	editbox.id = label.htmlFor;
 	div.appendChild(editbox);
 
-	if (value != null)
-		editbox.value = value;
+	editbox.value = this.data.data;
 }
 
-EditItemDialogUI.prototype.initUISelect = function (enumType, selectedValue, labelText) {
-	var div = this.dlg.content.contentDocument.getElementById("ItemTypeDataSelect");
-	while (div.childNodes.length > 0)
-		div.removeChild(div.childNodes[0]);
-
+EditItemDialogUI.prototype.initUISelect = function (div, enumType, selectedValue, labelText, commentText) {
 	var label = this.dlg.content.contentDocument.createElement("LABEL");
 	label.textContent = labelText;
 	label.htmlFor = "typeDataSelect";
@@ -256,10 +221,27 @@ EditItemDialogUI.prototype.initUISelect = function (enumType, selectedValue, lab
 	if (enumType != null) {
 		for (var typeName in enumType) {
 			var type = enumType[typeName];
-			var option = this.dlg.content.contentDocument.createElement("OPTION");
-			option.value = type.value;
-			option.textContent = type.name;
-			select.appendChild(option);
+			if (typeof type !== 'object')
+				continue;
+			if (typeof type.value !== 'number') {
+				var valueFrom = type.value[0];
+				var valueTo = type.value[1];
+				// don't fill the drop-down list with too much junk
+				if (valueTo > valueFrom + 100)
+					valueTo = valueFrom + 100;
+				for (var value = valueFrom; value <= valueTo; value++) {
+					var option = this.dlg.content.contentDocument.createElement("OPTION");
+					option.value = value;
+					option.textContent = dec2hex(value, 2) + ": " + type.name;
+					select.appendChild(option);
+				}
+			}
+			else {
+				var option = this.dlg.content.contentDocument.createElement("OPTION");
+				option.value = type.value;
+				option.textContent = dec2hex(type.value, 2) + ": " + type.name;
+				select.appendChild(option);
+			}
 		}
 	}
 
@@ -269,17 +251,25 @@ EditItemDialogUI.prototype.initUISelect = function (enumType, selectedValue, lab
 			break;
 		}
 	}
+
+	if (commentText != null) {
+		var br = this.dlg.content.contentDocument.createElement("BR");
+		div.appendChild(br);
+
+		var comment = this.dlg.content.contentDocument.createElement("TextNode");
+		comment.textContent = commentText;
+		comment.className = "Comment";
+		div.appendChild(comment);
+	}
 }
 
-EditItemDialogUI.prototype.initUICollection = function () {
-	// Collection radio buttons
-	var div = this.dlg.content.contentDocument.getElementById("ItemTypeDataCollection");
-	while (div.childNodes.length > 0)
-		div.removeChild(div.childNodes[0]);
+EditItemDialogUI.prototype.initUICollection = function (div) {
+	var collType = parseEnum(this.data.data, HIDItemCollectionType);
+
 	// Fill the div with all known collection types
 	for (var typeName in HIDItemCollectionType) {
 		var type = HIDItemCollectionType[typeName];
-		if (typeof type.value !== 'number')
+		if (typeof type !== 'object')
 			continue;
 
 		var radio = this.dlg.content.contentDocument.createElement("INPUT");
@@ -287,6 +277,8 @@ EditItemDialogUI.prototype.initUICollection = function () {
 		radio.name = "collectionType";
 		radio.value = type.value;
 		radio.id = HIDItemCollectionType.name + "." + type.name;
+		if (type == collType)
+			radio.checked = true;
 		div.appendChild(radio);
 
 		var label = document.createElement('LABEL');
@@ -294,22 +286,23 @@ EditItemDialogUI.prototype.initUICollection = function () {
 		label.textContent = type.name;
 		div.appendChild(label);
 
+		if (type == HIDItemCollectionType.VendorDefined) {
+			label.textContent += ": ";
+			var editbox = this.dlg.content.contentDocument.createElement("INPUT");
+			editbox.type = "TEXT";
+			editbox.name = "otherValue";
+			editbox.id = "otherValue";
+			if (type == collType)
+				editbox.value = this.data.data
+			div.appendChild(editbox);
+		}
 		var br = this.dlg.content.contentDocument.createElement("BR");
 		div.appendChild(br);
 	}
-	var radio = this.dlg.content.contentDocument.createElement("INPUT");
-	radio.type = "radio";
-	radio.name = "collectionType";
-	radio.value = HIDItemCollectionType.VendorDefined.value[0];
-	radio.id = HIDItemCollectionType.name + "." + HIDItemCollectionType.VendorDefined.name;
-	div.appendChild(radio);
 }
 
-EditItemDialogUI.prototype.initUIReport = function () {
+EditItemDialogUI.prototype.initUIReport = function (div) {
 	// Input/Output/Feature radio buttons
-	var div = this.dlg.content.contentDocument.getElementById("ItemTypeDataReport");
-	while (div.childNodes.length > 0)
-		div.removeChild(div.childNodes[0]);
 	// Fill the div with all known report attributes
 	for (var attrName in HIDReportEntryAttribute) {
 		var attr = HIDReportEntryAttribute[attrName];
@@ -333,17 +326,6 @@ EditItemDialogUI.prototype.initUIReport = function () {
 			div.appendChild(br);
 		}
 	}
-	var label = document.createElement('LABEL');
-	label.htmlFor = radio.id;
-	label.textContent = HIDItemCollectionType.VendorDefined.name + ": ";
-	div.appendChild(label);
-	var editbox = this.dlg.content.contentDocument.createElement("INPUT");
-	editbox.type = "TEXT";
-	editbox.name = "collectionTypeVendor";
-	editbox.id = "collectionTypeVendor";
-	div.appendChild(editbox);
-	var br = this.dlg.content.contentDocument.createElement("BR");
-	div.appendChild(br);
 }
 
 EditItemDialogUI.prototype.loadData = function () {
@@ -357,9 +339,21 @@ EditItemDialogUI.prototype.loadData = function () {
 		var tag = eval(this.itemType.options[index].value);
 		if (tag == item.tag) {
 			this.itemType.selectedIndex = index;
-			this.itemType.onchange();
 			selectedTag = tag;
 			break;
 		}
 	}
+	this.itemType.onchange();
+}
+
+EditItemDialogUI.prototype.saveData = function () {
+	var item = this.data;
+	if (item == null)
+		return;
+
+	var selectedOption = this.itemType.options[this.itemType.selectedIndex];
+	var group = selectedOption.parentElement;
+	item.tag = selectedOption.tag;
+	item.type = group.type;
+	// Set item.data
 }

@@ -22,11 +22,11 @@ var HID_LONG_ITEM_SIZE = 2;
 
 // HID Descriptor Main Item Tag
 var HIDItemMainTag = {
-    Input:          { value: 8, name: "Input", type: HIDReportType.Input },
-    Output:         { value: 9, name: "Output", type: HIDReportType.Output },
-    Feature:        { value: 11, name: "Feature", type: HIDReportType.Feature },
+    Input:          { value: 8,  name: "Input",    reportType: HIDReportType.Input },
+    Output:         { value: 9,  name: "Output",   reportType: HIDReportType.Output },
+    Feature:        { value: 11, name: "Feature",  reportType: HIDReportType.Feature },
     Collection:     { value: 10, name: "Collection" },
-    EndCollection:  { value: 12, name: "EndCollection" },
+    EndCollection:  { value: 12, name: "End Collection" },
     name: "HIDItemMainTag"
 };
 
@@ -64,9 +64,9 @@ var HIDItemLocalTag = {
 
 // HID Descriptor Item Type
 var HIDItemType = {
-   	Main:   { value: 0, name: "Main",   tags: HIDItemMainTag   },
    	Global: { value: 1, name: "Global", tags: HIDItemGlobalTag },
    	Local:  { value: 2, name: "Local",  tags: HIDItemLocalTag  },
+   	Main:   { value: 0, name: "Main",   tags: HIDItemMainTag   },
    	name: "HIDItemType"
 };
 
@@ -134,9 +134,9 @@ function HIDItem(indent) {
     // Parsed members
     this.type = null;
     this.tag = null;
-    this.data = null;
+    this.data = 0;
     // Members filled by run
-    this.dataDesc = null;
+    this.dataDesc = "";
     this.indent = indent;
 }
 
