@@ -202,7 +202,7 @@ EditItemDialogUI.prototype.initUINum = function (div, labelText) {
 
 	editbox.value = this.data.data;
 
-	this.getUIData = function () { return this.dlg.content.contentDocument.getElementById("typeDataNum").value; }
+	this.getUIData = function () { return parseInt(this.dlg.content.contentDocument.getElementById("typeDataNum").value); }
 }
 
 EditItemDialogUI.prototype.initUISelect = function (div, enumType, labelText, commentText) {
@@ -262,7 +262,7 @@ EditItemDialogUI.prototype.initUISelect = function (div, enumType, labelText, co
 
 	this.getUIData = function () {
 		var select = this.dlg.content.contentDocument.getElementById("typeDataSelect");
-		return select.options[select.selectedIndex].value;
+		return parseInt(select.options[select.selectedIndex].value);
 	}
 }
 
@@ -310,7 +310,7 @@ EditItemDialogUI.prototype.initUICollection = function (div) {
 			if (elem.tagName != "INPUT")
 				continue;
 			if (elem.checked) {
-				ret = elem.value;
+				ret = parseInt(elem.value);
 				break;
 			}
 		}
