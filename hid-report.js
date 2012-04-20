@@ -45,8 +45,8 @@ var HIDReportEntryAttribute = {
 	name: "HIDReportEntryAttribute"
 };
 
-function HIDReportEntryAttributes(item) {
-	this.data = item.data;
+function HIDReportEntryAttributes(data) {
+	this.data = data;
 	this.attrs = Array();
 	for (var attrName in HIDReportEntryAttribute) {
 		var attr = HIDReportEntryAttribute[attrName];
@@ -79,13 +79,13 @@ function HIDReportEntry(attributes, usage, bits) {
     this.bits = bits;
     this.attributes = attributes;
     this.attributesDesc = attributes.makeDescription();
-    // #### Todo: 
+    // Todo, record more information about this report entry, such as:
     /*
     this.logicalMin = ;
     this.logicalMax = ;
     this.physicalMin = ;
     this.physicalMax = ;
-    ... etc
+	unit, etc.
     */
 };
 
@@ -96,7 +96,7 @@ function HIDReport(type, id) {
 }
 
 HIDReport.prototype.addData = function (item, state) {
-	var attr = new HIDReportEntryAttributes(item);
+	var attr = new HIDReportEntryAttributes(item.data);
 
 	var num;
 	for (num = 0; num < state.repCount; num++) {
@@ -106,11 +106,6 @@ HIDReport.prototype.addData = function (item, state) {
 	}
 	return attr.makeDescription();
 }
-
-HIDReport.prototype.makeDescription = function () {
-    // #### Todo: Parse data bits and return them as human readable string
-//    return this.data;
-};
 
 HIDReport.prototype.getBitSize = function () {
     var bits = 0;

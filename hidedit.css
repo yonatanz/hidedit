@@ -60,21 +60,27 @@ DIV.disabled
 {
     overflow: scroll;
 }
-DIV.treeitem
+.treeitem
 {
     font-size: 80%;
     cursor: default;
+    display:block;
+    border: 0px;
+    margin: 0px;
+    padding: 0px;
+    background: transparent;
+    height: 16px;
 }
-DIV.selectedItem
+.selectedItem
 {
     background-color: #b0b0ff;
 }
-DIV.errorItem
+.errorItem
 {
     color: #c00000;
     font-weight: bold;
 }
-DIV.treeitemindent
+.treeitemindent
 {
     display: inline-block;
     width: 20px;
@@ -132,6 +138,10 @@ DIV.DialogParent
 {
 	display: none;
 }
+.visible
+{
+	display: inline-block;
+}
 DIV.Dialog
 {
 	display: inline-block;
@@ -175,4 +185,7 @@ DIV.Dialog
     background-position: -256px 0px;
     display: inline-block;
     float: right;
+}
+DIV.ItemTypeData
+{
 }

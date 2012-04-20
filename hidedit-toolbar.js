@@ -28,6 +28,10 @@ var ToolbarButton = {
     name: "ToolbarButton"
 };
 
+// Dialogs
+var editItemDlg = null;
+var addItemDlg = null;
+
 function Toolbar()
 {
 	this.curButton = null;
@@ -52,6 +56,12 @@ function Toolbar()
 
         this.elem.appendChild(buttonElem);
     }
+
+    editItemDlg = new Dialog("Edit item", "dlg-edititem.html", new EditItemDialogUI(onEditItemOK));
+    editItemDlg.setSize(500, 300);
+
+    addItemDlg = new Dialog("Add item", "dlg-edititem.html", new EditItemDialogUI(onAddItemOK));
+    addItemDlg.setSize(500, 300);
 }
 
 Toolbar.prototype.clearState = function () {
@@ -218,7 +228,18 @@ function onSaveClicked()
 }
 
 function onAddItemClicked() {
-	addItemDlg.show(null);
+	var item = new HIDItem(0);
+	addItemDlg.show(item);
+}
+
+function onAddItemOK() {
+	treeView.saveSelectionIndex();
+
+	addItemDlg.close(true);
+	descriptor.items.push(addItemDlg.ui.data);
+
+	onDescriptorChanged();
+	treeView.restoreSelectionIndex();
 }
 
 function onDelItemClicked()
@@ -226,10 +247,10 @@ function onDelItemClicked()
 	if (treeView.selectedItem == null)
 		return;
 
-	var index = treeView.selectedItem.itemIndex;
+	treeView.saveSelectionIndex();
 	descriptor.items.splice(treeView.selectedItem.itemIndex, 1);
     onDescriptorChanged();
-	treeView.selectIndex(index);
+    treeView.restoreSelectionIndex();
 }
 
 function onEditItemClicked() {
@@ -238,6 +259,15 @@ function onEditItemClicked() {
 
 	var index = treeView.selectedItem.itemIndex;
 	editItemDlg.show(descriptor.items[treeView.selectedItem.itemIndex]);
+}
+
+function onEditItemOK() {
+	treeView.saveSelectionIndex();
+
+	editItemDlg.close(true);
+
+	onDescriptorChanged();
+	treeView.restoreSelectionIndex();
 }
 
 function onAddReportClicked()
