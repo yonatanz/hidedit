@@ -16,14 +16,6 @@ You should have received a copy of the GNU General Public License
 along with hidedit.  If not, see http://www.gnu.org/licenses/
 */
 
-var HIDUnitSystem = {
-    SILinear:       { value: 0, name: "SI Linear",        units: { 1:"Centimeter", 2:"Gram", 3:"Seconds", 4:"Kelvin",     5:"Ampere", 6:"Candela" } },
-    SIRotation:     { value: 1, name: "SI Rotation",      units: { 1:"Radians",    2:"Gram", 3:"Seconds", 4:"Kelvin",     5:"Ampere", 6:"Candela" } },
-    EnglishLinear:  { value: 2, name: "English Linear",   units: { 1:"Inch",       2:"Slug", 3:"Seconds", 4:"Fahrenheit", 5:"Ampere", 6:"Candela" } },
-    EnglishRotation:{ value: 3, name: "English Rotation", units: { 1:"Degrees",    2:"Slug", 3:"Seconds", 4:"Fahrenheit", 5:"Ampere", 6:"Candela" } },
-    name: "HIDUnitSystem"
-};
-
 function HIDCollection(type, state) {
     this.type = type;
     this.state = state;

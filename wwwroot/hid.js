@@ -83,6 +83,14 @@ var HIDItemCollectionType = {
     name: "HIDItemCollectionType"
 };
 
+var HIDUnitSystem = {
+   	SILinear:        { value: 0, name: "SI Linear",        units: { 1: "Centimeter", 2: "Gram", 3: "Seconds", 4: "Kelvin",     5: "Ampere", 6: "Candela"} },
+   	SIRotation:      { value: 1, name: "SI Rotation",      units: { 1: "Radians",    2: "Gram", 3: "Seconds", 4: "Kelvin",     5: "Ampere", 6: "Candela"} },
+   	EnglishLinear:   { value: 2, name: "English Linear",   units: { 1: "Inch",       2: "Slug", 3: "Seconds", 4: "Fahrenheit", 5: "Ampere", 6: "Candela"} },
+   	EnglishRotation: { value: 3, name: "English Rotation", units: { 1: "Degrees",    2: "Slug", 3: "Seconds", 4: "Fahrenheit", 5: "Ampere", 6: "Candela"} },
+   	name: "HIDUnitSystem"
+};
+
 // Object for parsed HID Descriptor Item Prefix
 var HIDItemPrefix = makeStruct("tag type size");
 
@@ -130,14 +138,14 @@ function packHIDItemPrefix(tag, type, size) {
            packSize(size);
 }
 
-function HIDItem(indent) {
+function HIDItem() {
     // Parsed members
     this.type = null;
     this.tag = null;
     this.data = 0;
     // Members filled by run
     this.dataDesc = "";
-    this.indent = indent;
+    this.indent = 0;
 }
 
 // Read and parse a HID Item from the stream
@@ -192,18 +200,10 @@ function HIDDescriptor() {
 HIDDescriptor.prototype.parse = function (stream) {
     this.items = new Array();
 
-	var indent = 0;
     while (!stream.atEnd())
     {
-        var item = new HIDItem(indent);
+        var item = new HIDItem();
         item.parse(stream);
-		if (item.tag == HIDItemMainTag.Collection)
-			indent++;
-		else if (item.tag == HIDItemMainTag.EndCollection)
-		{
-			item.indent--;
-			indent--;
-		}
         this.items.push(item);
     }
 };

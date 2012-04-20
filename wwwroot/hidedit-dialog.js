@@ -138,23 +138,18 @@ EditItemDialogUI.prototype.onItemTypeChange = function () {
 		case HIDItemMainTag.Output:
 		case HIDItemMainTag.Feature:
 			this.initUIReport(div);
-			var attrs = new HIDReportEntryAttributes(this.data.data);
-			for (var attrIndex = 0; attrIndex < attrs.attrs.length; attrIndex++) {
-				var attr = attrs.attrs[attrIndex];
-				this.dlg.content.contentDocument.getElementById(HIDReportEntryAttribute.name + "." + attr.name).checked = true;
-			}
 			break;
 		case HIDItemMainTag.Collection:
 			this.initUICollection(div);
 			break;
 		case HIDItemGlobalTag.UsagePage:
-			this.initUISelect(div, HIDUsagePage, this.data.data, "Usage page: ", null);
+			this.initUISelect(div, HIDUsagePage, "Usage page: ", null);
 			break;
 		case HIDItemLocalTag.Usage:
 		case HIDItemLocalTag.UsageMinimum:
 		case HIDItemLocalTag.UsageMaximum:
 			if (this.data.usagePage != null)
-				this.initUISelect(div, this.data.usagePage.usage, this.data.data, "Usage: ", "From Usage-Page: " + this.data.usagePage.name);
+				this.initUISelect(div, this.data.usagePage.usage, "Usage: ", "From Usage-Page: " + this.data.usagePage.name);
 			else
 				this.initUINone(div, "No usage page selected");
 			break;
@@ -176,7 +171,7 @@ EditItemDialogUI.prototype.onItemTypeChange = function () {
 			this.initUINum(div, selectedTag.name + ": ");
 			break;
 		case HIDItemGlobalTag.Unit:
-			// #### todo
+			this.initUIUnit(div);
 			break;
 		default:
 			this.initUINone(div, "This item type has no properties");
@@ -190,6 +185,7 @@ EditItemDialogUI.prototype.initUINone = function (div, commentText) {
 		comment.className = "Comment";
 		div.appendChild(comment);
 	}
+	this.getUIData = function () { return 0; }
 }
 
 EditItemDialogUI.prototype.initUINum = function (div, labelText) {
@@ -205,9 +201,11 @@ EditItemDialogUI.prototype.initUINum = function (div, labelText) {
 	div.appendChild(editbox);
 
 	editbox.value = this.data.data;
+
+	this.getUIData = function () { return this.dlg.content.contentDocument.getElementById("typeDataNum").value; }
 }
 
-EditItemDialogUI.prototype.initUISelect = function (div, enumType, selectedValue, labelText, commentText) {
+EditItemDialogUI.prototype.initUISelect = function (div, enumType, labelText, commentText) {
 	var label = this.dlg.content.contentDocument.createElement("LABEL");
 	label.textContent = labelText;
 	label.htmlFor = "typeDataSelect";
@@ -246,7 +244,7 @@ EditItemDialogUI.prototype.initUISelect = function (div, enumType, selectedValue
 	}
 
 	for (var index = 0; index < select.options.length; index++) {
-		if (select.options[index].value == selectedValue) {
+		if (select.options[index].value == this.data.data) {
 			select.selectedIndex = index;
 			break;
 		}
@@ -260,6 +258,11 @@ EditItemDialogUI.prototype.initUISelect = function (div, enumType, selectedValue
 		comment.textContent = commentText;
 		comment.className = "Comment";
 		div.appendChild(comment);
+	}
+
+	this.getUIData = function () {
+		var select = this.dlg.content.contentDocument.getElementById("typeDataSelect");
+		return select.options[select.selectedIndex].value;
 	}
 }
 
@@ -299,11 +302,27 @@ EditItemDialogUI.prototype.initUICollection = function (div) {
 		var br = this.dlg.content.contentDocument.createElement("BR");
 		div.appendChild(br);
 	}
+	this.getUIData = function () {
+		var div = this.dlg.content.contentDocument.getElementById("ItemTypeData");
+		var ret = 0;
+		for (var index = 0; index < div.childNodes.length; index++) {
+			var elem = div.childNodes[index];
+			if (elem.tagName != "INPUT")
+				continue;
+			if (elem.checked) {
+				ret = elem.value;
+				break;
+			}
+		}
+		return ret;
+	}
 }
 
 EditItemDialogUI.prototype.initUIReport = function (div) {
 	// Input/Output/Feature radio buttons
 	// Fill the div with all known report attributes
+
+	// TODO: quirk - Input main-item doesn't support the Volatile/NonVolatile bit 7 (it is reserved)
 	for (var attrName in HIDReportEntryAttribute) {
 		var attr = HIDReportEntryAttribute[attrName];
 		if (typeof attr !== 'object')
@@ -313,6 +332,7 @@ EditItemDialogUI.prototype.initUIReport = function (div) {
 		radio.type = "radio";
 		radio.name = "attr" + attr.bit;
 		radio.value = attr.value;
+		radio.attr = attr;
 		radio.id = HIDReportEntryAttribute.name + "." + attr.name;
 		div.appendChild(radio);
 
@@ -326,6 +346,33 @@ EditItemDialogUI.prototype.initUIReport = function (div) {
 			div.appendChild(br);
 		}
 	}
+
+	var attrs = new HIDReportEntryAttributes(this.data.data);
+	for (var attrIndex = 0; attrIndex < attrs.attrs.length; attrIndex++) {
+		var attr = attrs.attrs[attrIndex];
+		this.dlg.content.contentDocument.getElementById(HIDReportEntryAttribute.name + "." + attr.name).checked = true;
+	}
+
+	this.getUIData = function () {
+		var div = this.dlg.content.contentDocument.getElementById("ItemTypeData");
+		var ret = 0;
+		for (var index = 0; index < div.childNodes.length; index++) {
+			var elem = div.childNodes[index];
+			if (elem.tagName != "INPUT")
+				continue;
+			if (!elem.checked)
+				continue;
+
+			ret |= elem.attr.value << elem.attr.bit;
+		}
+		return ret;
+	}
+}
+
+EditItemDialogUI.prototype.initUIUnit = function (div, unit) {
+	// TODO:
+	// SELECT element for unit-system (list at HIDUnitSystem)
+	// Sliders(?) for exponents for each of the 6 units of the selected system (range -8 .. 7)
 }
 
 EditItemDialogUI.prototype.loadData = function () {
@@ -355,5 +402,5 @@ EditItemDialogUI.prototype.saveData = function () {
 	var group = selectedOption.parentElement;
 	item.tag = selectedOption.tag;
 	item.type = group.type;
-	// Set item.data
+	item.data = this.getUIData();
 }

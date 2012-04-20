@@ -38,6 +38,7 @@ Tree.prototype.clear = function () {
 Tree.prototype.show = function (descriptor) {
 	this.clear();
 	this.descriptor = descriptor;
+	var indent = 0;
 	for (var index in descriptor.items) {
 		var item = descriptor.items[index];
 
@@ -45,15 +46,22 @@ Tree.prototype.show = function (descriptor) {
 		item.elem = itemElem;
 		itemElem.className = "treeitem";
 		itemElem.onclick = function () { treeView.toggleSelectItem(this); };
-		itemElem.ondblclick = function () { onEditItemClicked(); };
+		itemElem.ondblclick = function () { treeView.selectItem(this); onEditItemClicked(); };
 		itemElem.itemIndex = index;
 
+		if (item.tag == HIDItemMainTag.EndCollection)
+			indent--;
+
 		var indentElem = null;
+		item.indent = indent;
 		for (var i = 0; i < item.indent; i++) {
 			indentElem = document.createElement('DIV');
 			indentElem.className = "treeitemindent";
 			itemElem.appendChild(indentElem);
 		}
+
+		if (item.tag == HIDItemMainTag.Collection)
+			indent++;
 
 		var textElem = document.createElement('TextNode');
 		textElem.textContent = item.tag.name + "(" + item.dataDesc + ")";
@@ -78,7 +86,9 @@ Tree.prototype.selectIndex = function (index) {
 	if (index >= this.root.childNodes.length)
 		index = this.root.childNodes.length - 1;
 
-	this.toggleSelectItem(this.root.childNodes[index]);
+	var item = this.root.childNodes[index];
+	if (this.selectedItem != item)
+		this.toggleSelectItem(this.root.childNodes[index]);
 }
 
 Tree.prototype.toggleSelectItem = function (treeItem) {
@@ -89,6 +99,22 @@ Tree.prototype.toggleSelectItem = function (treeItem) {
 	}
 
 	if ((treeItem != null) && (treeItem != oldSelected)) {
+		this.selectedItem = treeItem;
+		addClass(this.selectedItem, "selectedItem");
+	}
+	this.enableToolbar();
+};
+
+Tree.prototype.selectItem = function (treeItem) {
+	if (this.selectedItem == treeItem)
+		return;
+
+	if (this.selectedItem != null) {
+		delClass(this.selectedItem, "selectedItem");
+		this.selectedItem = null;
+	}
+
+	if (treeItem != null) {
 		this.selectedItem = treeItem;
 		addClass(this.selectedItem, "selectedItem");
 	}
