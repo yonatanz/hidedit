@@ -117,13 +117,6 @@ function onDescriptorChanged() {
 	reportsView.show(run.reports);
 }
 
-function writelog(str) {
-    var log = document.getElementById('log');
-    var text = document.createElement('TextNode');
-    text.textContent = str;
-    log.appendChild(text);
-}
-
 // Program's global state
 var descriptor = null;
 
