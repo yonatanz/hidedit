@@ -17,16 +17,19 @@
 */
 
 // Infrastructure:
-function loadScript(url, islast) {
-    var head = document.getElementsByTagName('head')[0];
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = url;
-    if (islast) {
-        script.onreadystatechange = onScriptLoaded;
-        script.onload = onScriptLoaded;
-    }
-    head.appendChild(script);
+function loadScript(url) {
+	scripts[url] = Array();
+	scripts[url].done = false;
+	scripts[url].block = document.createElement("DIV");
+	loading.appendChild(scripts[url].block);
+
+	var head = document.getElementsByTagName('head')[0];
+	var script = document.createElement('script');
+	script.type = 'text/javascript';
+	script.src = url;
+	script.onreadystatechange = function () { onScriptLoaded(url); };
+	script.onload = function () { onScriptLoaded(url); };
+	head.appendChild(script);
 }
 
 function makeStruct(names) {
@@ -114,17 +117,6 @@ function onDescriptorChanged() {
 	reportsView.show(run.reports);
 }
 
-loadScript("hid-stream.js");
-loadScript("hut.js");
-loadScript("hid-report.js");
-loadScript("hid.js");
-loadScript("hid-run-state.js");
-loadScript("hid-run.js");
-loadScript("hidedit-toolbar.js");
-loadScript("hidedit-tree.js");
-loadScript("hidedit-reports.js");
-loadScript("hidedit-dialog.js", true);
-
 function writelog(str) {
     var log = document.getElementById('log');
     var text = document.createElement('TextNode');
@@ -134,24 +126,66 @@ function writelog(str) {
 
 // Program's global state
 var descriptor = null;
-var scriptLoaded = false;
 
 // UI components
+var hidedit = document.getElementById("hidedit");
 var toolbar = null;
 var treeView = null;
 var reportsView = null;
 
-function onScriptLoaded() {
-	// prevent double-initialization
-	if (scriptLoaded)
+// Code components
+var scripts = {
+	"hid-stream.js": null,
+	"hut.js": null,
+	"hid-report.js": null,
+	"hid.js": null,
+	"hid-run-state.js": null,
+	"hid-run.js": null,
+	"hidedit-toolbar.js": null,
+	"hidedit-tree.js": null,
+	"hidedit-reports.js": null,
+	"hidedit-dialog.js": null
+};
+
+function onScriptLoaded(url) {
+	// Mark this script as loaded
+	if (scripts[url].done)
 		return;
-	scriptLoaded = true;
+	scripts[url].done = true;
+
+	// Update loading progress
+	scripts[url].block.className = "done";
+
+	// Waiting for more scripts?
+	for (var scriptUrl in scripts) {
+		if (!scripts[scriptUrl].done)
+			return;
+	}
+
+	// All scripts have loaded. Time for initialization
+	hidedit.removeChild(loading);
+	hidedit.removeChild(loadingText);
 
 	// Init global state
 	descriptor = new HIDDescriptor();
 
 	// Init UI components
 	toolbar = new Toolbar();
-	treeView = new Tree("itemtree");
-	reportsView = new Reports("reportview");
+	treeView = new Tree();
+	reportsView = new Reports();
 }
+
+// Create the loading UI
+var loadingText = document.createElement("P");
+loadingText.id = "loadingText";
+loadingText.textContent = "Loading HIDEdit, please wait...";
+hidedit.appendChild(loadingText);
+
+var loading = document.createElement("DIV");
+loading.id = "loading";
+hidedit.appendChild(loading);
+
+
+// Load the scripts
+for (var scriptUrl in scripts)
+	loadScript(scriptUrl);

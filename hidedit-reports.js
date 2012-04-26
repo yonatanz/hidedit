@@ -15,9 +15,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with hidedit.  If not, see http://www.gnu.org/licenses/
 */
-function Reports(elemID) {
-    this.elemID = elemID;
-    this.elem = document.getElementById(this.elemID);
+function Reports() {
+	this.elem = document.createElement("DIV");
+	this.elem.id = "reportview";
+	hidedit.appendChild(this.elem);
 }
 
 Reports.prototype.clear = function () {
