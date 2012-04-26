@@ -32,11 +32,12 @@ var ToolbarButton = {
 var editItemDlg = null;
 var addItemDlg = null;
 
-function Toolbar()
-{
-	this.curButton = null;
-	this.elem = document.getElementById("toolbar");
+function Toolbar() {
+	this.elem = document.createElement("DIV");
+	this.elem.id = "toolbar";
+	hidedit.appendChild(this.elem);
 
+	this.curButton = null;
     for (var typeName in ToolbarButton)
     {
         var typeObj = ToolbarButton[typeName];
@@ -72,8 +73,7 @@ Toolbar.prototype.clearState = function () {
 
 Toolbar.prototype.enableButton = function (btn, enable) {
 	this.clearState();
-    var tb = document.getElementById("toolbar");
-	var o = tb.childNodes[btn.value];
+	var o = this.elem.childNodes[btn.value];
 	if (enable)
 		delClass(o, "disabled");
 	else

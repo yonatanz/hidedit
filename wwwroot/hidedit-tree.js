@@ -15,9 +15,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with hidedit.  If not, see http://www.gnu.org/licenses/
 */
-function Tree(elemID) {
-    this.elemID = elemID;
-    this.root = document.getElementById(this.elemID);
+function Tree() {
+    this.root = document.createElement("DIV");
+	this.root.id = "itemtree";
+	hidedit.appendChild(this.root);
+
     this.descriptor = null;
 
     this.selectedItem = null;

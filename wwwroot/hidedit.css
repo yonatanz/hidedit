@@ -17,6 +17,27 @@
 */
 
 /************
+ * Loading  *
+ ************/
+#loading
+{
+	height: 20px;
+	border: 1px solid black;
+	display: inline-block;
+}
+#loading DIV
+{
+	width: 20px;
+	height: 20px;
+	background: white;
+	display: inline-block;
+}
+#loading DIV.done
+{
+	background: blue;
+}
+
+/************
  * Toolbar  *
  ************/
 
